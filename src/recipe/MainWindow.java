@@ -10,12 +10,6 @@
  */
 package recipe;
 
-import java.io.BufferedReader;
-import java.io.IOException;
-import java.io.InputStreamReader;
-import java.io.OutputStream;
-import java.net.HttpURLConnection;
-import java.net.URL;
 import recipe.speech.handlers.TestSRH;
 import recipe.speech.RATextToSpeech;
 import recipe.speech.RASpeechRecognizer;
@@ -24,7 +18,6 @@ import recipe.speech.SpeechResultHandler;
 
 import java.util.logging.Level;
 import java.util.logging.Logger;
-import recipe.scraping.RecipeDownload;
 
 /**
  *
@@ -35,8 +28,8 @@ public class MainWindow extends javax.swing.JFrame {
     /** Creates new form MainWindow */
     public MainWindow() {
         initComponents();
-        
-       /*try {
+        System.out.println("ask 'how much (sugar | flour | vanilla extract)'");
+        try {
             RATextToSpeech.load();
             RASpeechRecognizer s = new RASpeechRecognizer();
             TestSRH test = new TestSRH(s);
@@ -47,7 +40,7 @@ public class MainWindow extends javax.swing.JFrame {
             System.out.println(ex.getMessage());
         }
         System.out.println("Started");
-        */
+        
     }
 
     /** This method is called from within the constructor to
@@ -131,7 +124,7 @@ private void jTextField1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-F
 }//GEN-LAST:event_jTextField1ActionPerformed
 
 private void jButton2ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton2ActionPerformed
-    RecipeDownload.searchRecipes(jTextField1.getText());
+
 }//GEN-LAST:event_jButton2ActionPerformed
 
     /**
