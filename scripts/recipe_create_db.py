@@ -2,7 +2,7 @@ import sqlite3
 from recipe_download import *
 
 def create_db():
-    db = sqlite3.connect('RecipeDB')
+    db = sqlite3.connect('recipe.db')
     db.execute("""
         CREATE TABLE Categories
         (
@@ -20,9 +20,16 @@ def create_db():
         (
             ID        INTEGER PRIMARY KEY AUTOINCREMENT,
             Title           TEXT,
-            Yield           REAL,
-            Instructions    TEXT
+            Yield           REAL
         )""")
+    db.execute("""
+        CREATE TABLE Instructions
+        (
+            RecipeID    INTEGER,
+            Step        INTEGER,
+            Instruction TEXT
+        )""")
+    #questions table to come
     db.execute("""
         CREATE TABLE Ingredients
         (
@@ -44,9 +51,53 @@ def create_db():
     db.commit()
     db.close()
 
+def test_insert():
+    db = sqlite3.connect('recipe.db')
+    db.execute('INSERT INTO Categories (Name) VALUES (?)',
+               ['Test'])
+    db.execute('INSERT INTO Recipes (Title,Yield) VALUES (?,?)',
+               ['Test Recipe',2])
+    db.execute('INSERT INTO RecipeCategories (CategoryID,RecipeID) VALUES (?,?)',
+               [1,1])
+    db.execute('INSERT INTO Instructions (RecipeID,Step,Instruction) VALUES (?,?,?)',
+               [1,1,'Do the first thing you have to do.'])
+    db.execute('INSERT INTO Instructions (RecipeID,Step,Instruction) VALUES (?,?,?)',
+               [1,2,'Do the second thing.'])
+    db.execute('INSERT INTO Instructions (RecipeID,Step,Instruction) VALUES (?,?,?)',
+               [1,3,'Mix it all together.'])
+    db.execute('INSERT INTO Instructions (RecipeID,Step,Instruction) VALUES (?,?,?)',
+               [1,4,'You are done!'])
+    db.execute('INSERT INTO Ingredients (Name,Alias1) VALUES (?,?)',
+               ['sugar','sweetener'])
+    db.execute('INSERT INTO Ingredients (Name) VALUES (?)',
+               ['flour'])
+    db.execute('INSERT INTO Ingredients (Name,Alias1) VALUES (?,?)',
+               ['butter','margerine'])
+    db.execute('INSERT INTO Ingredients (Name,Alias1) VALUES (?,?)',
+               ['vanila extract','vanila'])
+    db.execute("""INSERT INTO RecipeIngredients (RecipeID,
+                IngredientID,IngredientDetail,Amount,Unit) VALUES (?,?,?,?,?)""",
+               [1,1,'',2,'c'])
+    db.execute("""INSERT INTO RecipeIngredients (RecipeID,
+                IngredientID,IngredientDetail,Amount,Unit) VALUES (?,?,?,?,?)""",
+               [1,2,'sifted',3,'c'])
+    db.execute("""INSERT INTO RecipeIngredients (RecipeID,
+                IngredientID,IngredientDetail,Amount,Unit) VALUES (?,?,?,?,?)""",
+               [1,3,'softened',2,'tb'])
+    db.execute("""INSERT INTO RecipeIngredients (RecipeID,
+                IngredientID,IngredientDetail,Amount,Unit) VALUES (?,?,?,?,?)""",
+               [1,4,'',1,'ts'])
+    db.commit()
+    c = db.cursor()
+    c.execute('SELECT * FROM Categories')
+    for x in c:print x
+    c.execute('SELECT * FROM Recipes')
+    for x in c:print x
+    db.close()
+
 def fill_categories():
     cats = get_categories()
-    db.connect('RecipeDB')
+    db.connect('recipe.db')
     for c in cats:
         db.execute('INSERT INTO Categories (Name) VALUES (?)',[c[1]])
     db.commit()
