@@ -15,8 +15,11 @@ public class RATextToSpeech {
     static VoiceManager voiceManager;
     static Voice voice;
     
-    public static void load() {
+    public static void load() { 
         voiceManager = VoiceManager.getInstance();
+        for (Voice v : voiceManager.getVoices()) {
+            System.out.println(v.getName());
+        }
         voice = voiceManager.getVoice("kevin16"); //switch to voiceName
         voice.allocate();
     }

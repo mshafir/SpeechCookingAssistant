@@ -4,8 +4,8 @@
  */
 package recipe.speech.handlers;
 
-import recipe.Ingredient;
-import recipe.Recipe;
+import recipe.core.Ingredient;
+import recipe.core.Recipe;
 import recipe.speech.RASpeechRecognizer;
 import recipe.speech.SpeechResultHandler;
 import recipe.speech.TTSCommandHandler;
