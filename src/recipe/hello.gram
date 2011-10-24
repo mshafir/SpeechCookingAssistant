@@ -6,4 +6,8 @@
 
 grammar hello;
 
-<ingredientQuestion> = sue chef how (much | many) ;
+<start> = sue chef ;
+
+<stepQuestion> = <start> ((tell me what to do) | (what do I do) | (what happens));
+
+<ingredientQuestion> = <start> how (much | many) ;

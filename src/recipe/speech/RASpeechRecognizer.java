@@ -46,6 +46,7 @@ public class RASpeechRecognizer {
     JSGFGrammar jsgfGrammar;
     ResultListener listener;
     boolean started;
+    SpeechResultHandler curHandler;
     
     public RASpeechRecognizer() 
             throws EngineException, GrammarException, IOException, 
@@ -93,15 +94,21 @@ public class RASpeechRecognizer {
         jsgfGrammar.commitChanges();
     }
      
-    public void start(Thread rl) throws GrammarException {
+    public void start(SpeechResultHandler rh) throws GrammarException {
         microphone.startRecording();
-        rl.start();
+        curHandler = rh;
+        curHandler.start();
         started = true;
     }
     
     public void stop() {
         if (started) {
-            recognizer.removeResultListener(listener);
+            curHandler.stopRecognition();
+            try {
+                curHandler.join();
+            } catch (InterruptedException ex) {
+                System.err.println("Could not properly close recognizer.");
+            }
             microphone.stopRecording();
         }
     }

@@ -5,7 +5,7 @@
 package recipe.speech.handlers;
 
 import recipe.speech.RASpeechRecognizer;
-import recipe.speech.TTSCommandHandler;
+import recipe.speech.TTSCommand;
 import recipe.speech.SpeechResultHandler;
 import javax.speech.recognition.GrammarException;
 /**
@@ -22,7 +22,7 @@ public class TestSRH extends SpeechResultHandler {
     public void loadCommands() {
         try {
             super.loadCommandRule("r1", "<ingredientQuestion> sugar", "speak", "2 cups of sugar",
-                    new TTSCommandHandler());
+                    new TTSCommand());
 
             super.loadCommandRule("r2", "<ingredientQuestion> flour", "speak", "3 cups of flour");
 

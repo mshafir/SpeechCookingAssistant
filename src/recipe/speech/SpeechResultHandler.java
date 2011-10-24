@@ -42,6 +42,7 @@ import java.util.HashMap;
 public abstract class SpeechResultHandler extends Thread  {
     private RASpeechRecognizer recognizer;
     private HashMap<String,SpeechCommandHandler> commands;
+    private boolean bRunning = true;
     
     public SpeechResultHandler(RASpeechRecognizer rec) {
         recognizer = rec;
@@ -57,41 +58,52 @@ public abstract class SpeechResultHandler extends Thread  {
     protected void loadCommandRule(String name, String rule, 
             String command, String arg, SpeechCommandHandler handler ) 
             throws GrammarException, IOException, JSGFGrammarParseException, JSGFGrammarException {
-        recognizer.addRule(name, rule + "{ this.command=\""+command+"\"; "
-                + " this.arg=\""+arg+"\"; }");
-        commands.put(command, handler);
+        this.loadCommandRule(name, rule, command, arg);
+        if (!commands.containsKey(command))
+            commands.put(command, handler);
     }
     
     protected void loadCommandRule(String name, String rule, 
             String command, String arg ) throws GrammarException, 
             IOException, JSGFGrammarParseException, JSGFGrammarException {
-        recognizer.addRule(name, rule + "{ this.command=\""+command+"\"; "
-                    + " this.arg=\""+arg+"\"; }");
+        String ruleText = rule + "{ this.command=\""+command+"\"; "
+                    + " this.arg=\""+arg+"\"; }";
+        System.out.println(ruleText);
+        recognizer.addRule(name, ruleText);
+        
+    }
+    
+    public void stopRecognition() {
+        bRunning = false;
     }
     
     public abstract void loadCommands() throws GrammarException;
     
     @Override
     public void run() {
-        while (true) {
+        //recognizer.jsgfGrammar.dumpGrammar("test");
+        while (bRunning) {
             Result result = recognizer.getRecognizer().recognize();
-            String bestResult = result.getBestFinalResultNoFiller();
-            RuleGrammar ruleGrammar = recognizer.getRuleGrammar();
-            //RuleGrammar ruleGrammar = new BaseRuleGrammar (jsapiRecognizer, 
-            //        jsgfGrammar.getRuleGrammar());
-            try {
-                RuleParse ruleParse = ruleGrammar.parse(bestResult, null);
-                if (ruleParse != null) {
-                    recognizer.getTagsParser().parseTags(ruleParse);
-                    String command = (String) recognizer.getTagsParser().get("command");
-                    String arg = (String) recognizer.getTagsParser().get("arg");
-                    System.out.println("\n  " + command +' ' + arg + '\n');
-                    commands.get(command).doCommand(arg);
+            if (result != null) {
+                String bestResult = result.getBestFinalResultNoFiller();
+                RuleGrammar ruleGrammar = recognizer.getRuleGrammar();
+                //RuleGrammar ruleGrammar = new BaseRuleGrammar (jsapiRecognizer, 
+                //        jsgfGrammar.getRuleGrammar());
+                try {
+                    RuleParse ruleParse = ruleGrammar.parse(bestResult, null);
+                    if (ruleParse != null) {
+                        recognizer.getTagsParser().parseTags(ruleParse);
+                        String command = (String) recognizer.getTagsParser().get("command");
+                        String arg = (String) recognizer.getTagsParser().get("arg");
+                        System.out.println("\n  " + command +' ' + arg + '\n');
+                        commands.get(command).doCommand(arg);
+                        recognizer.microphone.clear();
+                    }
+                } catch (GrammarException ex) {
+                    Logger.getLogger(RASpeechRecognizer.class.getName()).log(
+                            Level.SEVERE, null, ex);
+                    System.out.println("Result action failed:"+ex.getMessage());
                 }
-            } catch (GrammarException ex) {
-                Logger.getLogger(RASpeechRecognizer.class.getName()).log(
-                        Level.SEVERE, null, ex);
-                System.out.println("Result action failed:"+ex.getMessage());
             }
         }
     }

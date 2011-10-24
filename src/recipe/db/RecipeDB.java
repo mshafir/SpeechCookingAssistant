@@ -8,6 +8,7 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import recipe.core.Category;
+import recipe.core.Ingredient;
 import recipe.core.Recipe;
 
 /**
@@ -38,7 +39,37 @@ public class RecipeDB extends SqliteDB {
                 + " ORDER BY ID");
         while (rs.next()) {
             ret.add(new Recipe(rs.getInt("ID"),
-                    rs.getString("Title"),rs.getInt("Yield")));
+                    rs.getString("Title"),rs.getFloat("Yield")));
+        }
+        rs.close();
+        return ret;
+    }
+    
+    public ArrayList<Ingredient> getIngredients(int recipeID) throws SQLException {
+        ArrayList<Ingredient> ret = new ArrayList<Ingredient>();
+        ResultSet rs = super.executeQuery("SELECT Name,Alias1,Alias2,Alias3,"
+                + "Amount,Unit,IngredientDetail FROM RecipeIngredients "
+                + "INNER JOIN Ingredients ON ID=IngredientID "
+                + "WHERE RecipeID="+Integer.toString(recipeID)
+                + " ORDER BY Name");
+        while (rs.next()) {
+            ret.add(new Ingredient(rs.getString("Name"),
+                    rs.getString("Alias1"),rs.getString("Alias2"),
+                    rs.getString("Alias3"),rs.getFloat("Amount"),
+                    rs.getString("Unit"),rs.getString("IngredientDetail")));
+        }
+        rs.close();
+        return ret;
+    }
+    
+    public ArrayList<String> getSteps(int recipeID) throws SQLException {
+        ArrayList<String> ret = new ArrayList<String>();
+        ResultSet rs = super.executeQuery("SELECT Instruction "
+                + "FROM Instructions "
+                + "WHERE RecipeID="+Integer.toString(recipeID)
+                + " ORDER BY Step");
+        while (rs.next()) {
+            ret.add(rs.getString("Instruction"));
         }
         rs.close();
         return ret;
