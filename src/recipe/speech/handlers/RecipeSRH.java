@@ -41,9 +41,10 @@ public class RecipeSRH extends SpeechResultHandler {
                     }
                 }
                 iRule += " )";
-                
+                String unit = unitMapping(i.Unit,i.Amount>1);
+                String of = unit.equals("") ? "" : " of ";
                 String answer = amountConversion(i.Amount)+" "+
-                            unitMapping(i.Unit,i.Amount>1)+" of "+
+                            unit+of+
                             i.IngredientNames.get(0); //aka 3 cups of butter
                 
                 super.loadCommandRule("r"+Integer.toString(cur), 
@@ -69,21 +70,28 @@ public class RecipeSRH extends SpeechResultHandler {
         int num = (int)amount;
         String start = Integer.toString(num);
         int remainder = (int)((amount-num)*100);
+        if (start.equals("0")) {
+            start = "";
+        } else if (remainder > 0) {
+            start += " and ";
+        }
         
         switch (remainder)
         {
             case 0:
                 return start;
+            case 12:
+                return start + "an eighth";
             case 25:
-                return start + " and a quarter";
+                return start + "a quarter";
             case 33:
-                return start + " and a third";
+                return start + "a third";
             case 50:
-                return start + " and a half";
+                return start + "a half";
             case 66:
-                return start + " and two thirds";
+                return start + "two thirds";
             case 75:
-                return start + " and three quarters";
+                return start + "three quarters";
             default:
                 return Float.toString(amount);
         }     

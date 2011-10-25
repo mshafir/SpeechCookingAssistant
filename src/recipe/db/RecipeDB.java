@@ -40,7 +40,8 @@ public class RecipeDB extends SqliteDB {
     
     public ArrayList<Category> getCategories() throws SQLException {
         ArrayList<Category> ret = new ArrayList<Category>();
-        ResultSet rs = super.executeQuery("SELECT ID,Name FROM Categories ORDER BY ID");
+        ResultSet rs = super.executeQuery("SELECT ID,Name FROM Categories "
+                + "WHERE Display=1 ORDER BY ID");
         while (rs.next()) {
             ret.add(new Category(rs.getInt("ID"),rs.getString("Name")));
         }
@@ -50,7 +51,7 @@ public class RecipeDB extends SqliteDB {
     
     public ArrayList<Recipe> getRecipes(int categoryID) throws SQLException {
         ArrayList<Recipe> ret = new ArrayList<Recipe>();
-        ResultSet rs = super.executeQuery("SELECT ID,Title,Yield FROM Recipes "
+        ResultSet rs = super.executeQuery("SELECT DISTINCT ID,Title,Yield FROM Recipes "
                 + "INNER JOIN RecipeCategories ON ID=RecipeID "
                 + "WHERE CategoryID="+Integer.toString(categoryID)
                 + " ORDER BY ID");
@@ -64,7 +65,7 @@ public class RecipeDB extends SqliteDB {
     
     public ArrayList<Ingredient> getIngredients(int recipeID) throws SQLException {
         ArrayList<Ingredient> ret = new ArrayList<Ingredient>();
-        ResultSet rs = super.executeQuery("SELECT Name,Alias1,Alias2,Alias3,"
+        ResultSet rs = super.executeQuery("SELECT DISTINCT Name,Alias1,Alias2,Alias3,"
                 + "Amount,Unit,IngredientDetail FROM RecipeIngredients "
                 + "INNER JOIN Ingredients ON ID=IngredientID "
                 + "WHERE RecipeID="+Integer.toString(recipeID)

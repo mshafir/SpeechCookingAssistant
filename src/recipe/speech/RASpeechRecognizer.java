@@ -32,6 +32,7 @@ public class RASpeechRecognizer {
     private BaseRecognizer jsapiRecognizer;
     private Microphone microphone;
     private JSGFGrammar jsgfGrammar;
+    private RuleGrammar ruleGrammar;
     private boolean started;
     private SpeechResultHandler curHandler;
     
@@ -85,16 +86,18 @@ public class RASpeechRecognizer {
         microphone.clear();
     }
     
-    public void clearRules() {
-        RuleGrammar ruleGrammar = new BaseRuleGrammar(jsapiRecognizer, jsgfGrammar.getRuleGrammar());
-        for (String r : ruleGrammar.listRuleNames()) {
-            ruleGrammar.deleteRule(r);
+    public void clearRules() throws IOException, JSGFGrammarParseException, JSGFGrammarException {
+        for (String r : jsgfGrammar.getRuleGrammar().getRuleNames()) {
+            jsgfGrammar.getRuleGrammar().deleteRule(r);
         }
+        jsgfGrammar.getGrammarManager().grammars().clear();
+        jsgfGrammar.loadJSGF("recipe/hello");
+        jsgfGrammar.commitChanges();
     }
     
     public void addRule(String ruleName, String jsgf) throws GrammarException, 
                 IOException, JSGFGrammarParseException, JSGFGrammarException {
-        RuleGrammar ruleGrammar = new BaseRuleGrammar(jsapiRecognizer, jsgfGrammar.getRuleGrammar());
+        ruleGrammar = new BaseRuleGrammar(jsapiRecognizer, jsgfGrammar.getRuleGrammar());
         Rule newRule = ruleGrammar.ruleForJSGF(jsgf);
         ruleGrammar.setRule(ruleName, newRule, true);
         ruleGrammar.setEnabled(ruleName, true);
@@ -112,13 +115,16 @@ public class RASpeechRecognizer {
     
     public void stop() {
         if (started) {
+            clearMic();
+            microphone.stopRecording();
             curHandler.stopRecognition();
             try {
                 curHandler.join();
-            } catch (InterruptedException ex) {
+                recognizer.resetMonitors();
+                clearRules();
+            } catch (Exception ex) {
                 System.err.println("Could not properly close recognizer.");
             }
-            microphone.stopRecording();
             started = false;
         }
     }

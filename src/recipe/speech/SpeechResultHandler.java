@@ -26,7 +26,6 @@ public abstract class SpeechResultHandler extends Thread  {
     }
     
     public void go() throws GrammarException {
-        RASpeechRecognizer.getInstance().clearRules();
         loadCommands();
         RASpeechRecognizer.getInstance().start(this);
     }
@@ -76,6 +75,5 @@ public abstract class SpeechResultHandler extends Thread  {
                 }
             }
         }
-        RASpeechRecognizer.getInstance().getRecognizer().resetMonitors();
     }
 }
