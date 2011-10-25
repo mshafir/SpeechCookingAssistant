@@ -7,7 +7,8 @@ def create_db():
         CREATE TABLE Categories
         (
             ID      INTEGER PRIMARY KEY AUTOINCREMENT,
-            Name    TEXT
+            Name    TEXT,
+            Display INTEGER DEFAULT 0
         )""")
     db.execute("""
         CREATE TABLE RecipeCategories
@@ -72,9 +73,9 @@ def test_insert():
     db.execute('INSERT INTO Ingredients (Name) VALUES (?)',
                ['flour'])
     db.execute('INSERT INTO Ingredients (Name,Alias1) VALUES (?,?)',
-               ['butter','margerine'])
+               ['butter','margarine'])
     db.execute('INSERT INTO Ingredients (Name,Alias1) VALUES (?,?)',
-               ['vanila extract','vanila'])
+               ['vanilla extract','vanilla'])
     db.execute("""INSERT INTO RecipeIngredients (RecipeID,
                 IngredientID,IngredientDetail,Amount,Unit) VALUES (?,?,?,?,?)""",
                [1,1,'',2,'c'])
@@ -97,48 +98,60 @@ def test_insert():
 
 def fill_categories():
     cats = get_categories()
-    db.connect('recipe.db')
+    db = sqlite3.connect('recipe.db')
     for c in cats:
         db.execute('INSERT INTO Categories (Name) VALUES (?)',[c[1]])
     db.commit()
     db.close()
-
-def split_ingredient(text):
-    return [text,'']
     
-def fill_recipe(db,recipe_name,recipe_list):
+def fill_recipe(db,recipe):
     #handle main recipe stuff
-    db.execute('INSERT INTO Recipes (Title,Yield,Instructions) VALUES (?,?,?)',
-               [recipe_name,recipe_list[1],recipe_list[3]])
-    c = db.execute('SELECT ID FROM Recipes WHERE Title=?',[recipe_name])
+    db.execute('INSERT INTO Recipes (Title,Yield) VALUES (?,?)',
+               [recipe.title,recipe.servings])
+    c = db.execute('SELECT ID FROM Recipes WHERE Title=?',[recipe.title])
     rid = c.fetchone()[0]
     #handle categories
-    for c in categories:
-        c = db.execute('SELECT ID FROM Categories WHERE Name=?',[c])
-        cid = c.fetchone()[0]
-        db.execute("""INSERT INTO RecipeCategories (CategoryID,RecipeID)
-                      VALUES (?,?)""",
-                   [cid,rid])
-        db.commit()
+    for c in recipe.categories:
+        cursor = db.execute('SELECT ID FROM Categories WHERE Name=?',[c])
+        try:
+            cid = cursor.fetchone()[0]
+            db.execute("""INSERT INTO RecipeCategories (CategoryID,RecipeID)
+                          VALUES (?,?)""",
+                       [cid,rid])
+            db.commit()
+        except:
+            print 'could not find category '+c
     #handle ingredients (TODO:account for alt_units and measures)
-    for i in recipe_list[2]:
+    for i in recipe.ingredients:
         #does the ingredient exist?
-        [iname,idetail] = split_ingredient(i['ingredient'])
         c = db.execute("""SELECT ID FROM Ingredients
-                          WHERE Name=? OR Alias1=?
+                          WHERE Name=? OR Alias1=? OR 
                               Alias2=? OR Alias3=?""",
-                       [iname,iname,iname,iname])
+                       [i.ingredient,i.ingredient,i.ingredient,i.ingredient])
         results = [x[0] for x in c]
         if len(results) > 0: #exists
             iid = results[0]
         else: #doesn't exist
             db.execute("""INSERT INTO Ingredients (Name) VALUES (?)""",
-                       [iname])
+                       [i.ingredient])
             c = db.execute("""SELECT ID FROM Ingredients
-                            WHERE Name=?""",[iname])
+                            WHERE Name=?""",[i.ingredient])
             iid = c.fetchone()[0]
         db.execute("""INSERT INTO RecipeIngredients
                     (RecipeID,IngredientID,IngredientDetail,Amount,Unit)
                     VALUES (?,?,?,?,?)""",
-                   [rid,iid,idetail,i['measure'],i['unit']])
+                   [rid,iid,i.detail,i.measure,i.unit])
         db.commit()
+    #handle steps
+    num = 1
+    for s in recipe.steps:
+        db.execute("""INSERT INTO Instructions (RecipeID,Step,Instruction)
+                    VALUES (?,?,?)""",[rid,num,s])
+        db.commit()
+        num += 1
+
+#create_db()
+#fill_categories()
+cats = get_categories()
+recipes = get_recipes_for_category(cats[22][0])
+db = sqlite3.connect('recipe.db')

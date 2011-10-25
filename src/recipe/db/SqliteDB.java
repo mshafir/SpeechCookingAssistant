@@ -15,8 +15,7 @@ public class SqliteDB {
     
     public SqliteDB(String path) throws ClassNotFoundException, SQLException {
        Class.forName("org.sqlite.JDBC"); 
-       String fullpath = (new File(path)).getAbsolutePath();
-       path = "jdbc:sqlite:"+fullpath;
+       String fullpath = "jdbc:sqlite:"+(new File(path)).getAbsolutePath();
        System.out.println(fullpath);
        con = DriverManager.getConnection(fullpath);
     }

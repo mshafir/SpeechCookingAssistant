@@ -28,7 +28,7 @@ public class Recipe {
     
     @Override
     public String toString() {
-        return Title + "         yields: "+Float.toString(Yield) + " serving(s)";
+        return Title;
     }
 
     /**

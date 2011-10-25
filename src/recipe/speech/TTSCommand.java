@@ -14,5 +14,4 @@ public class TTSCommand implements SpeechCommandHandler {
     public void doCommand(String arg) {
         RATextToSpeech.speak(arg);
     }
-    
 }

@@ -1,4 +1,5 @@
 import urllib,os,re
+from Recipe import *
 
 baseurl = "http://www.recipes.stevex.net"
 
@@ -23,7 +24,7 @@ def get_recipes_for_category(rel_url):
     p = re.compile("""<a href="(/recipe/.+?)">(.+?)</a>""")
     recipes = []
     for match in p.finditer(s):
-        recipes.append([match.group(1),match.group(2)])
+        recipes.append(Recipe(match.group(2),match.group(1)))
     #go to next page if there is one
     p_next = re.compile("""<a href="(/category/.+?)">Next Page >></a>""")
     r = p_next.search(s)
@@ -32,7 +33,7 @@ def get_recipes_for_category(rel_url):
     return recipes
 
 basic_units = ['c','ts','tb','[ ]', 'tb','g','kg','ml','cups','cup','lb',
-         'pk','lg','pn','sm','oz','ds','stick']
+         'pk','lg','pn','sm','oz','ds','stick','sl']
 #categories
 pcat = re.compile('<a href="/category/(.+?)">')
 #yeild
@@ -52,43 +53,31 @@ pingredients = re.compile(start+'('+sp+measure+sp+units+opt_2+sp+ing+'\s+?)'+end
 #instructions
 pinstructions = re.compile('\s+(.*?)\s+</pre>',re.DOTALL)
 
-def get_recipe(rel_url):
+def get_recipe(recipe):
     global baseurl,pyield,pingredients,pinstructions
-    f = urllib.urlopen(baseurl+rel_url)
+    f = urllib.urlopen(baseurl+recipe.rel_url)
     s = f.read()
     f.close()
     #find categories
     categories = []
     for match in pcat.finditer(s):
-        categories.append(match.group(1))
+        recipe.add_category(match.group(1))
     #find yield
-    yld = float(pyield.search(s).group(1))
+    recipe.set_yield(float(pyield.search(s).group(1)))
     #find ingredients
-    ingredients = []
     end = 0
     for match in pingredients.finditer(s):
-        ingredients.append(simplify_ing_units(match.groupdict()))
+        recipe.add_ingredient(Ingredient(match.groupdict()))
         end = match.end(0)
     #find instructions
-    instructions = pinstructions.search(s,end).group(1)
-    return [categories,yld,ingredients,instructions]
-
-simplify_table = [[['c','cups','cup'],'c'],
-                  [['teaspoon','teaspoons','ts'],'ts'],
-                  [['tablespoon','tablespoons','tb'],'tb'],
-                  [[' '],'']]
-def simplify_ing_units(ing_dict):
-    for row in simplify_table:
-        if ing_dict["unit"] in row[0]:
-            ing_dict["unit"] = row[1]
-        if ing_dict["alt_unit"] in row[0]:
-            ing_dict["alt_unit"] = row[1]
-    return ing_dict
+    recipe.add_instructions(pinstructions.search(s,end).group(1))
+    return recipe
 
 def ensure_dir(f):
     if not os.path.exists(f):
         os.makedirs(f)
 
+#obsolete - see db methods
 def save_recipe(lst,category,name):
     nm = name.replace('"','').replace('*','')
     ensure_dir('recipes')
@@ -106,6 +95,7 @@ def save_recipe(lst,category,name):
             '</instructions>\n</recipe>')
     f.close()
 
+#obsolete - see db methods
 def save_category(cat_url,cat_name):
     rs = get_recipes_for_category(cat_url)
     for r in rs:
@@ -118,5 +108,7 @@ def save_category(cat_url,cat_name):
             print 'failed to get '+r[0]
 
 #c = get_categories()
+#rs = get_recipes_for_category(c[5][0])
+#print get_recipe(rs[1])
 #save_category(c[5][0],c[5][1])
 #print get_recipe('/recipe/amish_apple_brownies')

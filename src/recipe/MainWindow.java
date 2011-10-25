@@ -41,7 +41,7 @@ public class MainWindow extends javax.swing.JFrame {
             ArrayList<Category> categories = RecipeDB.getInstance().getCategories();
             DefaultListModel model = new DefaultListModel();
             for (Category c:categories) {
-                System.out.println(c.Name);
+                //System.out.println(c.Name);
                 model.addElement(c);
             }
             jList1.setModel(model);
