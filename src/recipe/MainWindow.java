@@ -10,17 +10,12 @@
  */
 package recipe;
 
-import java.awt.Component;
 import java.util.ArrayList;
-import recipe.speech.handlers.TestSRH;
+
+import javax.swing.DefaultListModel;
+
 import recipe.speech.RATextToSpeech;
 import recipe.speech.RASpeechRecognizer;
-import recipe.speech.SpeechResultHandler;
-
-
-import java.util.logging.Level;
-import java.util.logging.Logger;
-import javax.swing.DefaultListModel;
 import recipe.core.Category;
 import recipe.core.Recipe;
 import recipe.db.RecipeDB;
@@ -30,35 +25,20 @@ import recipe.db.RecipeDB;
  * @author Michael
  */
 public class MainWindow extends javax.swing.JFrame {
-    
-    RecipeDB db;
-    RASpeechRecognizer recognizer;
-    
+   
     /** Creates new form MainWindow */
     public MainWindow() {
         initComponents();
 
-        try {
-            db = new RecipeDB();
-        } catch (Exception ex) {
-            System.err.println(ex.getMessage());
-        }
+        RecipeDB.initialize();
+        RATextToSpeech.initialize();
+        RASpeechRecognizer.initialize();
         loadCategories();
-        loadSpeech();
-    }
-    
-    public final void loadSpeech() {
-        try {
-            RATextToSpeech.load();
-            recognizer = new RASpeechRecognizer();
-        } catch (Exception ex) {
-            System.err.println(ex.getMessage());
-        }
     }
     
     public final void loadCategories() {
         try {
-            ArrayList<Category> categories = db.getCategories();
+            ArrayList<Category> categories = RecipeDB.getInstance().getCategories();
             DefaultListModel model = new DefaultListModel();
             for (Category c:categories) {
                 System.out.println(c.Name);
@@ -72,9 +52,9 @@ public class MainWindow extends javax.swing.JFrame {
     
     public void loadRecipe(Recipe recipe) {
         try {
-            recipe.Ingredients = db.getIngredients(recipe.ID);
-            recipe.Steps = db.getSteps(recipe.ID);
-            RecipeWindow rWnd = new RecipeWindow(recipe,recognizer);
+            recipe.Ingredients = RecipeDB.getInstance().getIngredients(recipe.ID);
+            recipe.Steps = RecipeDB.getInstance().getSteps(recipe.ID);
+            RecipeWindow rWnd = new RecipeWindow(recipe);
             rWnd.setVisible(true);
         } catch (Exception ex) {
             System.err.println(ex.getMessage());
@@ -165,7 +145,7 @@ private void jTextField1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-F
         DefaultListModel model = new DefaultListModel();
         int catID = ((Category)jList1.getModel().getElementAt(evt.getFirstIndex())).ID;
         try {
-            ArrayList<Recipe> recipes = db.getRecipes(catID);
+            ArrayList<Recipe> recipes = RecipeDB.getInstance().getRecipes(catID);
             for (Recipe r:recipes) {
                 System.out.println(r.Title);
                 model.addElement(r);

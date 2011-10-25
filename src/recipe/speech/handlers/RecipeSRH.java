@@ -6,7 +6,6 @@ package recipe.speech.handlers;
 
 import recipe.core.Ingredient;
 import recipe.core.Recipe;
-import recipe.speech.RASpeechRecognizer;
 import recipe.speech.SpeechResultHandler;
 import recipe.speech.TTSCommand;
 import recipe.speech.TTSStateCommand;
@@ -19,14 +18,19 @@ public class RecipeSRH extends SpeechResultHandler {
     
     Recipe recipe;
     
-    public RecipeSRH(Recipe r, RASpeechRecognizer rec) {
-        super(rec);
+    public RecipeSRH(Recipe r) {
+        super();
         this.recipe = r;
     }
     
     @Override
     public void loadCommands() {
         try {
+            //load the action commands
+            super.addAction("speak", new TTSCommand()); //standard text speaker
+            super.addAction("stateSetSpeak", new TTSStateCommand(recipe)); //recipe state-aware text speaker
+            
+            //load the ingredient answering rules
             int cur=0;
             for (Ingredient i : recipe.Ingredients) {
                 String iRule = "<ingredientQuestion> ( ";
@@ -37,16 +41,19 @@ public class RecipeSRH extends SpeechResultHandler {
                     }
                 }
                 iRule += " )";
-                super.loadCommandRule("r"+Integer.toString(cur), 
-                       iRule, "speak", amountConversion(i.Amount)+" "+
+                
+                String answer = amountConversion(i.Amount)+" "+
                             unitMapping(i.Unit,i.Amount>1)+" of "+
-                            i.IngredientNames.get(0),
-                       new TTSCommand());
+                            i.IngredientNames.get(0); //aka 3 cups of butter
+                
+                super.loadCommandRule("r"+Integer.toString(cur), 
+                       iRule, "speak", answer);
                 cur++;
             }
+            
+            //load the instruction answering rules
             super.loadCommandRule("rSteps1","<stepQuestion> (first | (at the beginning) )",
-                    "stateSetSpeak","start",
-                    new TTSStateCommand(recipe));
+                    "stateSetSpeak","start");
             super.loadCommandRule("rSteps2","<stepQuestion>",
                     "stateSetSpeak","");
             super.loadCommandRule("rSteps3","<stepQuestion> (next | now | (after that)) ",

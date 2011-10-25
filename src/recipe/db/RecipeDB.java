@@ -17,8 +17,25 @@ import recipe.core.Recipe;
  */
 public class RecipeDB extends SqliteDB {
 
+    //singleton again - we only want one of these over the whole program (at least for now)
+    private static RecipeDB instance;
+    public static void initialize() {
+        try {
+            instance = new RecipeDB();
+        } catch (Exception ex) {
+            System.err.println(ex);
+        }
+    }
+    public static RecipeDB getInstance() {
+        if (instance == null) {
+            initialize();
+        }
+        return instance;
+    }
+    
+    
     public RecipeDB() throws ClassNotFoundException, SQLException {
-        super();
+        super("scripts/recipe.db");
     }
     
     public ArrayList<Category> getCategories() throws SQLException {

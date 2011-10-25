@@ -9,49 +9,53 @@ import edu.cmu.sphinx.jsgf.JSGFGrammarException;
 import edu.cmu.sphinx.jsgf.JSGFGrammarParseException;
 import edu.cmu.sphinx.recognizer.Recognizer;
 import edu.cmu.sphinx.frontend.util.Microphone;
-import edu.cmu.sphinx.result.Result;
 import edu.cmu.sphinx.util.props.ConfigurationManager;
-import edu.cmu.sphinx.util.props.PropertyException;
-import edu.cmu.sphinx.util.props.PropertySheet;
 import java.io.IOException;
-import java.net.URL;
 
-import java.util.logging.Level;
-import java.util.logging.Logger;
 import javax.speech.EngineException;
-import javax.speech.EngineStateError;
 import javax.speech.recognition.GrammarException;
 import javax.speech.recognition.Rule;
 import javax.speech.recognition.RuleGrammar;
-import javax.speech.recognition.RuleParse;
 
 import com.sun.speech.engine.recognition.BaseRecognizer;
 import com.sun.speech.engine.recognition.BaseRuleGrammar;
 import edu.cmu.sphinx.decoder.ResultListener;
-import edu.cmu.sphinx.jsgf.JSGFRuleGrammar;
-import edu.cmu.sphinx.jsgf.JSGFRuleGrammarManager;
-import edu.cmu.sphinx.jsgf.rule.JSGFRule;
 import edu.cmu.sphinx.tools.tags.ActionTagsParser;
-import recipe.MainWindow;
 
 /**
  *
  * @author Michael
  */
 public class RASpeechRecognizer {
-    ConfigurationManager cm;
-    Recognizer recognizer;
-    BaseRecognizer jsapiRecognizer;
-    Microphone microphone;
-    JSGFGrammar jsgfGrammar;
-    ResultListener listener;
-    boolean started;
-    SpeechResultHandler curHandler;
+    private ConfigurationManager cm;
+    private Recognizer recognizer;
+    private BaseRecognizer jsapiRecognizer;
+    private Microphone microphone;
+    private JSGFGrammar jsgfGrammar;
+    private boolean started;
+    private SpeechResultHandler curHandler;
+    
+    //Singleton Code
+    private static RASpeechRecognizer instance;
+    public static void initialize() {
+        try {
+            instance = new RASpeechRecognizer();
+        } catch (Exception ex) {
+            System.err.println(ex.getMessage());
+        }
+    }
+    public synchronized static RASpeechRecognizer getInstance() {
+        if (instance == null) {
+            initialize();
+        }
+        return instance;
+    }
+    
     
     public RASpeechRecognizer() 
             throws EngineException, GrammarException, IOException, 
             JSGFGrammarParseException, JSGFGrammarException {
-        cm = new ConfigurationManager(MainWindow.class.getResource("jsgf.config.xml"));
+        cm = new ConfigurationManager("jsgf.config.xml");
         recognizer = (Recognizer) cm.lookup("recognizer");
         jsgfGrammar = (JSGFGrammar) cm.lookup("jsgfGrammar");
         microphone = (Microphone) cm.lookup("microphone");
@@ -66,7 +70,6 @@ public class RASpeechRecognizer {
         jsgfGrammar.loadJSGF("recipe/hello");
         
         started = false;
-        //addRule(ruleGrammar, "t1", "test the system");
     }
     
     public RuleGrammar getRuleGrammar() {
@@ -76,6 +79,10 @@ public class RASpeechRecognizer {
     
     public Recognizer getRecognizer() {
         return recognizer;
+    }
+    
+    public void clearMic() {
+        microphone.clear();
     }
     
     public void clearRules() {
@@ -95,10 +102,12 @@ public class RASpeechRecognizer {
     }
      
     public void start(SpeechResultHandler rh) throws GrammarException {
-        microphone.startRecording();
-        curHandler = rh;
-        curHandler.start();
-        started = true;
+        if (!started) {
+            microphone.startRecording();
+            curHandler = rh;
+            curHandler.start();
+            started = true;
+        }
     }
     
     public void stop() {
@@ -110,6 +119,7 @@ public class RASpeechRecognizer {
                 System.err.println("Could not properly close recognizer.");
             }
             microphone.stopRecording();
+            started = false;
         }
     }
     

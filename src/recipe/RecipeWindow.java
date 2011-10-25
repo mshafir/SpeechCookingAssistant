@@ -24,18 +24,16 @@ import recipe.speech.handlers.RecipeSRH;
  * @author Michael
  */
 public class RecipeWindow extends javax.swing.JFrame {
-
-    RASpeechRecognizer recognizer;
     RecipeSRH handler;
     
     /** Creates new form RecipeWindow */
-    public RecipeWindow(Recipe r,RASpeechRecognizer rec) {
+    public RecipeWindow(Recipe r) {
         initComponents();
         
         //load the UI components
         loadUI(r);
         //load the speech recognition
-        loadSpeech(r,rec);
+        loadSpeech(r);
     }
     
     public final void loadUI(Recipe r) {
@@ -54,10 +52,9 @@ public class RecipeWindow extends javax.swing.JFrame {
         jList2.setModel(modelSteps);
     }
     
-    public final void loadSpeech(Recipe r,RASpeechRecognizer rec) {
-        recognizer = rec;
+    public final void loadSpeech(Recipe r) {
         try {
-            handler = new RecipeSRH(r,recognizer);
+            handler = new RecipeSRH(r);
             handler.go();
         }
         catch (Exception ex) {
@@ -85,7 +82,7 @@ public class RecipeWindow extends javax.swing.JFrame {
         jList2 = new javax.swing.JList();
         jButton1 = new javax.swing.JButton();
 
-        setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
+        setDefaultCloseOperation(javax.swing.WindowConstants.DISPOSE_ON_CLOSE);
         addWindowListener(new java.awt.event.WindowAdapter() {
             public void windowClosing(java.awt.event.WindowEvent evt) {
                 formWindowClosing(evt);
@@ -95,13 +92,13 @@ public class RecipeWindow extends javax.swing.JFrame {
         lblTitle.setFont(new java.awt.Font("Tahoma", 1, 24)); // NOI18N
         lblTitle.setText("Recipe Title");
 
-        lblYield.setFont(new java.awt.Font("Tahoma", 2, 12)); // NOI18N
+        lblYield.setFont(new java.awt.Font("Tahoma", 2, 12));
         lblYield.setText("yield: 1 serving");
 
-        jLabel2.setFont(new java.awt.Font("Tahoma", 0, 14)); // NOI18N
+        jLabel2.setFont(new java.awt.Font("Tahoma", 0, 14));
         jLabel2.setText("Instructions");
 
-        jLabel3.setFont(new java.awt.Font("Tahoma", 0, 14)); // NOI18N
+        jLabel3.setFont(new java.awt.Font("Tahoma", 0, 14));
         jLabel3.setText("Ingredients");
 
         jScrollPane1.setViewportView(jList1);
@@ -175,7 +172,7 @@ public class RecipeWindow extends javax.swing.JFrame {
     }//GEN-LAST:event_jButton1ActionPerformed
 
     private void formWindowClosing(java.awt.event.WindowEvent evt) {//GEN-FIRST:event_formWindowClosing
-        recognizer.stop();
+        RASpeechRecognizer.getInstance().stop();
     }//GEN-LAST:event_formWindowClosing
 
     // Variables declaration - do not modify//GEN-BEGIN:variables

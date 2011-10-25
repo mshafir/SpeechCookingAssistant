@@ -4,25 +4,24 @@
  */
 package recipe.speech.handlers;
 
-import recipe.speech.RASpeechRecognizer;
 import recipe.speech.TTSCommand;
 import recipe.speech.SpeechResultHandler;
-import javax.speech.recognition.GrammarException;
 /**
  *
  * @author Michael
  */
 public class TestSRH extends SpeechResultHandler {
     
-    public TestSRH(RASpeechRecognizer rec) {
-        super(rec);
+    public TestSRH() {
+        super();
     }
     
     @Override
     public void loadCommands() {
         try {
-            super.loadCommandRule("r1", "<ingredientQuestion> sugar", "speak", "2 cups of sugar",
-                    new TTSCommand());
+            super.addAction("speak", new TTSCommand());
+            
+            super.loadCommandRule("r1", "<ingredientQuestion> sugar", "speak", "2 cups of sugar");
 
             super.loadCommandRule("r2", "<ingredientQuestion> flour", "speak", "3 cups of flour");
 

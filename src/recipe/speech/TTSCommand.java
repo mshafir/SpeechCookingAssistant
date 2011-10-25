@@ -4,8 +4,6 @@
  */
 package recipe.speech;
 
-import recipe.speech.SpeechCommandHandler;
-
 /**
  *
  * @author Michael
