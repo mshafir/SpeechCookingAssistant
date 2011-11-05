@@ -10,15 +10,25 @@
  */
 package recipe;
 
+import java.awt.Color;
+import java.awt.Component;
+import java.awt.Dimension;
 import java.util.ArrayList;
 
 import javax.swing.DefaultListModel;
 
+import javax.swing.ImageIcon;
+import javax.swing.JLabel;
+import javax.swing.JList;
+import javax.swing.ListCellRenderer;
 import recipe.speech.RATextToSpeech;
 import recipe.speech.RASpeechRecognizer;
 import recipe.core.Category;
+import recipe.core.Ingredient;
 import recipe.core.Recipe;
 import recipe.db.RecipeDB;
+import recipe.speech.SpeechEventListener;
+import recipe.speech.handlers.RecipeSRH;
 
 /**
  *
@@ -26,14 +36,69 @@ import recipe.db.RecipeDB;
  */
 public class MainWindow extends javax.swing.JFrame {
    
+    private RecipeSRH handler;
+    private boolean recipeMode;
+    private ImagePanel speaker0;
+    private ImagePanel speaker1;
+    private ImagePanel speaker2;
+    
     /** Creates new form MainWindow */
     public MainWindow() {
         initComponents();
-
+        recipeMode = false;
+        setupLayout();
         RecipeDB.initialize();
         RATextToSpeech.initialize();
         RASpeechRecognizer.initialize();
         loadCategories();
+    }
+    
+    public final void setupLayout() {
+        
+        this.setIconImage(new ImageIcon("images/icon.ico").getImage());
+        
+        speaker0 = new ImagePanel("images/speaker0.png",
+                new Dimension(150,150));
+        this.add(speaker0);
+        speaker0.setBounds(0, this.getHeight()-170, speaker0.getWidth(), speaker0.getHeight());
+        speaker0.setVisible(false);
+        
+        speaker1 = new ImagePanel("images/speaker1.png",
+                new Dimension(150,150));
+        this.add(speaker1);
+        speaker1.setBounds(0, this.getHeight()-170, speaker1.getWidth(), speaker1.getHeight());
+        speaker1.setVisible(false);
+        
+        speaker2 = new ImagePanel("images/speaker2.png",
+                new Dimension(150,150));
+        this.add(speaker2);
+        speaker2.setBounds(0, this.getHeight()-170, speaker2.getWidth(), speaker2.getHeight());
+        speaker2.setVisible(false);
+        
+        this.setLayout(null);
+        ImagePanel back = new ImagePanel("images/background.png",
+                new Dimension(this.getWidth()-5,this.getHeight()-100));
+        this.add(back);
+        
+        ImagePanel bar = new ImagePanel("images/bar.png",
+                new Dimension(this.getWidth()-5,100));
+        this.add(bar);
+        bar.setBounds(0, this.getHeight()-100, bar.getWidth(), bar.getHeight());
+        
+        jList1.setCellRenderer(new MyCellRenderer());
+        jList2.setCellRenderer(new MyCellRenderer());
+        jList1.setBounds(50,100,340,380);
+        jList2.setBounds(430,100,340,380);
+        lblTitle.setBounds(50,40,340,40);
+        lblYield.setBounds(50,80,340,20);
+        btnBack.setBounds(620,60,150,20);
+        btnBack.setVisible(false);
+        lblQ.setBounds(200,540,500,20);
+        lblQ.setForeground(Color.WHITE);
+        lblR.setBounds(200,560,500,20);
+        lblR.setForeground(Color.WHITE);
+        
+        
     }
     
     public final void loadCategories() {
@@ -45,6 +110,7 @@ public class MainWindow extends javax.swing.JFrame {
                 model.addElement(c);
             }
             jList1.setModel(model);
+            jList2.setModel(new DefaultListModel());
         } catch (Exception ex) {
             System.err.println(ex.getMessage());
         }
@@ -54,13 +120,103 @@ public class MainWindow extends javax.swing.JFrame {
         try {
             recipe.Ingredients = RecipeDB.getInstance().getIngredients(recipe.ID);
             recipe.Steps = RecipeDB.getInstance().getSteps(recipe.ID);
-            RecipeWindow rWnd = new RecipeWindow(recipe);
-            rWnd.setVisible(true);
+            loadRecipeUI(recipe);
+            loadRecipeSpeech(recipe);
+            recipeMode = true;
+            //RecipeWindow rWnd = new RecipeWindow(recipe);
+            //rWnd.setVisible(true);
         } catch (Exception ex) {
             System.err.println(ex.getMessage());
         }
     }
 
+    public void loadRecipeUI(Recipe r) {
+        this.setTitle(r.Title);
+        lblTitle.setText(r.Title);
+        lblYield.setText("Yields "+Float.toString(r.Yield)+" servings.");
+        DefaultListModel modelIng = new DefaultListModel();
+        for (Ingredient i : r.Ingredients) {
+            modelIng.addElement(i);
+        }
+        jList1.setModel(modelIng);
+        DefaultListModel modelSteps = new DefaultListModel();
+        int curNum = 1;
+        for (String s : r.Steps) {
+            modelSteps.addElement(Integer.toString(curNum)+". "+s);
+            curNum++;
+        }
+        jList2.setModel(modelSteps);
+        btnBack.setVisible(true);
+    }
+    
+    public final void loadRecipeSpeech(Recipe r) {
+        try {
+            handler = new RecipeSRH(r);
+            handler.addListener(new RecipeSpeechListener(this));
+            handler.go();
+        }
+        catch (Exception ex) {
+            System.out.println(ex.getMessage());
+        }
+        System.out.println("Started");
+    }
+    
+    class RecipeSpeechListener implements SpeechEventListener {
+        MainWindow window;
+        public RecipeSpeechListener(MainWindow window) {
+            this.window = window;
+        }
+        
+        @Override
+        public void handleEvent(int state, String arg) {
+            setSpeaker(state);
+            if (state == 1) {
+                window.lblQ.setText(arg.replaceAll("sue chef", "Sous-chef,") +"?");
+                window.lblR.setText("...");
+            } else if (state == 2) {
+                window.lblR.setText(arg);
+            }
+        }
+        
+        private void setSpeaker(int state) {
+            if (state == 0)
+                speaker0.setVisible(true);
+            else
+                speaker0.setVisible(false);
+            if (state == 1)
+                speaker1.setVisible(true);
+            else
+                speaker1.setVisible(false);
+            if (state == 2)
+                speaker2.setVisible(true);
+            else
+                speaker2.setVisible(false);
+        }
+        
+    }
+    
+    class MyCellRenderer extends JLabel implements ListCellRenderer<Object> {
+         public MyCellRenderer() {
+             setOpaque(false);
+         }
+
+        @Override
+        public Component getListCellRendererComponent(JList<? extends Object> list, Object value, int index, boolean isSelected, boolean cellHasFocus) {
+            setText(value.toString());
+            this.setFont(list.getFont());
+            if (isSelected) {
+                setForeground(list.getSelectionForeground());
+                setBackground(list.getSelectionBackground());
+                this.setOpaque(true);
+            } else {
+                setForeground(list.getForeground());
+                this.setOpaque(false);
+            }
+            return this;
+        }
+    }
+
+    
     /** This method is called from within the constructor to
      * initialize the form.
      * WARNING: Do NOT modify this code. The content of this method is
@@ -70,36 +226,49 @@ public class MainWindow extends javax.swing.JFrame {
     // <editor-fold defaultstate="collapsed" desc="Generated Code">//GEN-BEGIN:initComponents
     private void initComponents() {
 
-        jScrollPane1 = new javax.swing.JScrollPane();
         jList1 = new javax.swing.JList();
-        jTextField1 = new javax.swing.JTextField();
-        jScrollPane2 = new javax.swing.JScrollPane();
         jList2 = new javax.swing.JList();
-        jButton2 = new javax.swing.JButton();
+        lblTitle = new javax.swing.JLabel();
+        lblYield = new javax.swing.JLabel();
+        btnBack = new javax.swing.JButton();
+        lblQ = new javax.swing.JLabel();
+        lblR = new javax.swing.JLabel();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
         setTitle("Sous-Chef");
+        setBackground(new java.awt.Color(102, 102, 102));
+        setBounds(new java.awt.Rectangle(0, 0, 800, 600));
+        setFocusableWindowState(false);
+        setForeground(java.awt.Color.gray);
+        setMinimumSize(new java.awt.Dimension(640, 480));
+        setResizable(false);
 
+        jList1.setFont(new java.awt.Font("Comic Sans MS", 0, 11)); // NOI18N
+        jList1.setOpaque(false);
         jList1.addListSelectionListener(new javax.swing.event.ListSelectionListener() {
             public void valueChanged(javax.swing.event.ListSelectionEvent evt) {
                 jList1ValueChanged(evt);
             }
         });
-        jScrollPane1.setViewportView(jList1);
 
-        jTextField1.setToolTipText("");
-        jTextField1.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                jTextField1ActionPerformed(evt);
+        jList2.setFont(new java.awt.Font("Comic Sans MS", 0, 11)); // NOI18N
+        jList2.setOpaque(false);
+        jList2.addMouseListener(new java.awt.event.MouseAdapter() {
+            public void mouseClicked(java.awt.event.MouseEvent evt) {
+                jList2MouseClicked(evt);
             }
         });
 
-        jScrollPane2.setViewportView(jList2);
+        lblTitle.setFont(new java.awt.Font("Comic Sans MS", 0, 18)); // NOI18N
+        lblTitle.setText("Recipe Categories");
 
-        jButton2.setText("Select Recipe");
-        jButton2.addActionListener(new java.awt.event.ActionListener() {
+        lblYield.setFont(new java.awt.Font("Comic Sans MS", 0, 11)); // NOI18N
+        lblYield.setHorizontalAlignment(javax.swing.SwingConstants.RIGHT);
+
+        btnBack.setText("Go Back");
+        btnBack.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
-                jButton2ActionPerformed(evt);
+                btnBackActionPerformed(evt);
             }
         });
 
@@ -110,60 +279,77 @@ public class MainWindow extends javax.swing.JFrame {
             .addGroup(layout.createSequentialGroup()
                 .addContainerGap()
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createSequentialGroup()
-                        .addComponent(jScrollPane1, javax.swing.GroupLayout.DEFAULT_SIZE, 267, Short.MAX_VALUE)
+                    .addGroup(layout.createSequentialGroup()
+                        .addComponent(lblR)
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING, false)
-                            .addComponent(jTextField1)
-                            .addComponent(jScrollPane2, javax.swing.GroupLayout.DEFAULT_SIZE, 428, Short.MAX_VALUE))
-                        .addContainerGap())
-                    .addComponent(jButton2, javax.swing.GroupLayout.Alignment.TRAILING)))
+                        .addComponent(jList1, javax.swing.GroupLayout.PREFERRED_SIZE, 243, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addGap(8, 8, 8)
+                        .addComponent(jList2, javax.swing.GroupLayout.PREFERRED_SIZE, 208, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                        .addComponent(btnBack))
+                    .addGroup(layout.createSequentialGroup()
+                        .addComponent(lblQ)
+                        .addGap(80, 80, 80)
+                        .addComponent(lblTitle)
+                        .addGap(120, 120, 120)
+                        .addComponent(lblYield)))
+                .addContainerGap(250, Short.MAX_VALUE))
         );
         layout.setVerticalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createSequentialGroup()
-                .addContainerGap()
-                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
-                    .addComponent(jScrollPane1, javax.swing.GroupLayout.Alignment.LEADING, javax.swing.GroupLayout.DEFAULT_SIZE, 429, Short.MAX_VALUE)
-                    .addGroup(layout.createSequentialGroup()
-                        .addComponent(jTextField1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                        .addComponent(jScrollPane2, javax.swing.GroupLayout.DEFAULT_SIZE, 403, Short.MAX_VALUE)))
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addComponent(jButton2)
-                .addContainerGap())
+            .addGroup(layout.createSequentialGroup()
+                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                    .addComponent(lblTitle)
+                    .addComponent(lblYield)
+                    .addComponent(lblQ))
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                        .addComponent(jList2, javax.swing.GroupLayout.PREFERRED_SIZE, 174, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addComponent(jList1, javax.swing.GroupLayout.PREFERRED_SIZE, 174, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addComponent(lblR))
+                    .addComponent(btnBack))
+                .addContainerGap(389, Short.MAX_VALUE))
         );
 
         pack();
     }// </editor-fold>//GEN-END:initComponents
 
-private void jTextField1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jTextField1ActionPerformed
-
-}//GEN-LAST:event_jTextField1ActionPerformed
-
     private void jList1ValueChanged(javax.swing.event.ListSelectionEvent evt) {//GEN-FIRST:event_jList1ValueChanged
-        DefaultListModel model = new DefaultListModel();
-        Category c = (Category)jList1.getSelectedValue();
-        if (c != null) {
-            try {
-                ArrayList<Recipe> recipes = RecipeDB.getInstance().getRecipes(c.ID);
-                for (Recipe r:recipes) {
-                    //System.out.println(r.Title);
-                    model.addElement(r);
+        if (!recipeMode) {
+            DefaultListModel model = new DefaultListModel();
+            Category c = (Category)jList1.getSelectedValue();
+            if (c != null) {
+                try {
+                    ArrayList<Recipe> recipes = RecipeDB.getInstance().getRecipes(c.ID);
+                    for (Recipe r:recipes) {
+                        model.addElement(r);
+                    }
+                    jList2.setModel(model);
+                } catch (Exception ex) {
+                    System.err.println(ex.getMessage());
                 }
-                jList2.setModel(model);
-            } catch (Exception ex) {
-                System.err.println(ex.getMessage());
             }
         }
     }//GEN-LAST:event_jList1ValueChanged
 
-    private void jButton2ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton2ActionPerformed
-        Recipe r = (Recipe)jList2.getSelectedValue();
-        if (r != null) {
-            loadRecipe(r);
+    private void jList2MouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_jList2MouseClicked
+        if (evt.getClickCount()>1 && !recipeMode) {
+            Recipe r = (Recipe)jList2.getSelectedValue();
+            if (r != null) {
+                loadRecipe(r);
+            } 
         }
-    }//GEN-LAST:event_jButton2ActionPerformed
+    }//GEN-LAST:event_jList2MouseClicked
+
+    private void btnBackActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnBackActionPerformed
+        recipeMode = false;
+        RASpeechRecognizer.getInstance().stop();
+        loadCategories();
+        lblTitle.setText("Recipe Categories");
+        lblYield.setText("");
+        btnBack.setVisible(false);
+    }//GEN-LAST:event_btnBackActionPerformed
 
     
     
@@ -182,6 +368,7 @@ private void jTextField1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-F
                     javax.swing.UIManager.setLookAndFeel(info.getClassName());
                     break;
                 }
+                
             }
         } catch (ClassNotFoundException ex) {
             java.util.logging.Logger.getLogger(MainWindow.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
@@ -197,17 +384,19 @@ private void jTextField1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-F
         /* Create and display the form */
         java.awt.EventQueue.invokeLater(new Runnable() {
 
+            @Override
             public void run() {
                 new MainWindow().setVisible(true);
             }
         });
     }
     // Variables declaration - do not modify//GEN-BEGIN:variables
-    private javax.swing.JButton jButton2;
+    private javax.swing.JButton btnBack;
     private javax.swing.JList jList1;
     private javax.swing.JList jList2;
-    private javax.swing.JScrollPane jScrollPane1;
-    private javax.swing.JScrollPane jScrollPane2;
-    private javax.swing.JTextField jTextField1;
+    private javax.swing.JLabel lblQ;
+    private javax.swing.JLabel lblR;
+    private javax.swing.JLabel lblTitle;
+    private javax.swing.JLabel lblYield;
     // End of variables declaration//GEN-END:variables
 }

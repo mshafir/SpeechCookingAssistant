@@ -4,7 +4,6 @@
  */
 package recipe.core;
 
-import recipe.core.Ingredient;
 import java.util.ArrayList;
 
 /**

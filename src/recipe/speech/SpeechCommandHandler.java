@@ -9,5 +9,5 @@ package recipe.speech;
  * @author Michael
  */
 public interface SpeechCommandHandler {
-    public void doCommand(String arg);
+    public void doCommand(String arg,SpeechResultHandler parent);
 }

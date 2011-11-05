@@ -12,6 +12,8 @@ import javax.speech.recognition.GrammarException;
 import javax.speech.recognition.RuleGrammar;
 import javax.speech.recognition.RuleParse;
 import java.util.HashMap;
+import java.util.LinkedList;
+import javax.swing.SwingUtilities;
 
 /**
  *
@@ -20,12 +22,20 @@ import java.util.HashMap;
 public abstract class SpeechResultHandler extends Thread  {
     private HashMap<String,SpeechCommandHandler> commands;
     private boolean bRunning = true;
+    private LinkedList<SpeechEventListener> listeners;
     
     public SpeechResultHandler() {
         commands = new HashMap<String, SpeechCommandHandler>();
+        listeners = new LinkedList<SpeechEventListener>();
     }
     
-    public void go() throws GrammarException {
+    public void addListener(SpeechEventListener listener) {
+        listeners.add(listener);
+    }
+    
+    public void go() throws GrammarException, JSGFGrammarParseException, 
+            IOException, JSGFGrammarException {
+        RASpeechRecognizer.getInstance().loadGrammar();
         loadCommands();
         RASpeechRecognizer.getInstance().start(this);
     }
@@ -50,30 +60,54 @@ public abstract class SpeechResultHandler extends Thread  {
     
     public abstract void loadCommands() throws GrammarException;
     
+    public void executeListeners(int state,String arg) {
+        for (SpeechEventListener listener: listeners) {
+            SwingUtilities.invokeLater(new DoHandle(listener,state,arg));  
+        }
+    }
+    
+    private class DoHandle implements Runnable {
+        public SpeechEventListener listener;
+        public int state;
+        public String arg;
+        public DoHandle(SpeechEventListener listener,int state,String arg){
+            this.listener = listener;
+            this.state = state;
+            this.arg = arg;
+        }
+        @Override
+        public void run() {
+            listener.handleEvent(state, arg);
+        }
+    }
+    
     @Override
     public void run() {
-        //recognizer.jsgfGrammar.dumpGrammar("test");
+        executeListeners(0,"");
         while (bRunning) {
             Result result = RASpeechRecognizer.getInstance().getRecognizer().recognize();
             if (result != null) {
                 String bestResult = result.getBestFinalResultNoFiller();
-                RuleGrammar ruleGrammar = RASpeechRecognizer.getInstance().getRuleGrammar();
-                //RuleGrammar ruleGrammar = new BaseRuleGrammar (jsapiRecognizer, 
-                //        jsgfGrammar.getRuleGrammar());
-                try {
-                    RuleParse ruleParse = ruleGrammar.parse(bestResult, null);
-                    if (ruleParse != null) {
-                        RASpeechRecognizer.getTagsParser().parseTags(ruleParse);
-                        String command = (String) RASpeechRecognizer.getTagsParser().get("command");
-                        String arg = (String) RASpeechRecognizer.getTagsParser().get("arg");
-                        System.out.println("\n  " + command +' ' + arg + '\n');
-                        commands.get(command).doCommand(arg);
-                        RASpeechRecognizer.getInstance().clearMic();
+                if (!bestResult.equals("")) {
+                    executeListeners(1,bestResult);
+                    RuleGrammar ruleGrammar = RASpeechRecognizer.getInstance().getRuleGrammar();
+                    try {
+                        RuleParse ruleParse = ruleGrammar.parse(bestResult, null);
+                        if (ruleParse != null) {
+                            RASpeechRecognizer.getTagsParser().parseTags(ruleParse);
+                            String command = (String) RASpeechRecognizer.getTagsParser().get("command");
+                            String arg = (String) RASpeechRecognizer.getTagsParser().get("arg");
+                            System.out.println("\n  " + command +' ' + arg + '\n');
+                            commands.get(command).doCommand(arg,this);
+                            RASpeechRecognizer.getInstance().clearMic();
+                        }
+                    } catch (GrammarException ex) {
+                        System.out.println("Result action failed:"+ex.getMessage());
                     }
-                } catch (GrammarException ex) {
-                    System.out.println("Result action failed:"+ex.getMessage());
                 }
             }
+            executeListeners(0,"");
         }
+        executeListeners(-1,"");
     }
 }

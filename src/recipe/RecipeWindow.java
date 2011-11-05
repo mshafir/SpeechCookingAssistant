@@ -10,13 +10,10 @@
  */
 package recipe;
 
-import java.util.logging.Level;
-import java.util.logging.Logger;
 import javax.swing.DefaultListModel;
 import recipe.core.Ingredient;
 import recipe.core.Recipe;
 import recipe.speech.RASpeechRecognizer;
-import recipe.speech.RATextToSpeech;
 import recipe.speech.handlers.RecipeSRH;
 
 /**
@@ -169,6 +166,7 @@ public class RecipeWindow extends javax.swing.JFrame {
     }// </editor-fold>//GEN-END:initComponents
 
     private void jButton1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton1ActionPerformed
+        RASpeechRecognizer.getInstance().stop();
         this.dispose();
     }//GEN-LAST:event_jButton1ActionPerformed
 

@@ -11,7 +11,8 @@ package recipe.speech;
 public class TTSCommand implements SpeechCommandHandler {
     
     @Override
-    public void doCommand(String arg) {
+    public void doCommand(String arg,SpeechResultHandler parent) {
+        parent.executeListeners(2, arg);
         RATextToSpeech.speak(arg);
     }
 }

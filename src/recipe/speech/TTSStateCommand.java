@@ -19,7 +19,7 @@ public class TTSStateCommand implements SpeechCommandHandler {
     }
     
     @Override
-    public void doCommand(String arg) {
+    public void doCommand(String arg,SpeechResultHandler parent) {
         if (arg.equals("start")) {
             r.setStep(0);   
         }
@@ -32,6 +32,7 @@ public class TTSStateCommand implements SpeechCommandHandler {
         else if (arg.equals("prev")) {
             r.setStep(r.getStep()-1);
         }
+        parent.executeListeners(2, r.currentStep());
         RATextToSpeech.speak(r.currentStep());
     }
 }

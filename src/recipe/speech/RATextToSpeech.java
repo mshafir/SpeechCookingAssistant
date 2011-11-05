@@ -14,9 +14,13 @@ import com.sun.speech.freetts.VoiceManager;
 public class RATextToSpeech {
     static VoiceManager voiceManager;
     static Voice voice;
+    static SpeechEventListener listener;
     
     public static void initialize() {
         voiceManager = VoiceManager.getInstance();
+        for (Voice v : voiceManager.getVoices()) {
+            System.out.println(v.getName());
+        }
         voice = voiceManager.getVoice("kevin16"); //switch to voiceName
         voice.allocate();
     }
