@@ -12,6 +12,17 @@
     <import file="nbproject/build-impl.xml"/>
 	<target name="-post-compile">
         <copy failonerror="true" file="${src.dir}/recipe/hello.gram" todir="${build.classes.dir}/recipe"/>
+		<mkdir dir="dist/scripts" />
+		<copy failonerror="false" file="scripts/recipe.db" todir="dist/scripts" />
+		<copy failonerror="false" file="jsgf.config.xml" todir="dist" />
+		<copy failonerror="false" file="hello.gram" todir="dist" />
+		<mkdir dir="dist/images" />
+		<copy failonerror="false" file="images/background.png" todir="dist/images" />
+		<copy failonerror="false" file="images/bar.png" todir="dist/images" />
+		<copy failonerror="false" file="images/speaker0.png" todir="dist/images" />
+		<copy failonerror="false" file="images/speaker1.png" todir="dist/images" />
+		<copy failonerror="false" file="images/speaker2.png" todir="dist/images" />
+		<copy failonerror="false" file="images/icon.png" todir="dist/images" />
 	</target>
     <!--
 

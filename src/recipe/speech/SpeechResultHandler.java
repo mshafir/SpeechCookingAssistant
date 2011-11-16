@@ -82,7 +82,7 @@ public abstract class SpeechResultHandler extends Thread  {
     }
     
     @Override
-    public void run() {
+    public synchronized void run() {
         executeListeners(0,"");
         while (bRunning) {
             Result result = RASpeechRecognizer.getInstance().getRecognizer().recognize();

@@ -139,6 +139,11 @@
     <Component class="javax.swing.JLabel" name="lblQ">
     </Component>
     <Component class="javax.swing.JLabel" name="lblR">
+      <Properties>
+        <Property name="font" type="java.awt.Font" editor="org.netbeans.beaninfo.editors.FontEditor">
+          <Font name="Tahoma" size="11" style="2"/>
+        </Property>
+      </Properties>
     </Component>
   </SubComponents>
 </Form>

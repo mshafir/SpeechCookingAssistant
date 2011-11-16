@@ -4,7 +4,7 @@ import re
 pnum = re.compile('[(]?\d+[\)\.\:]\s*')
 pdate = re.compile('\d+/\d+(/\d+)?\s\d+\:\d+')
 pstartfrom = re.compile('\W*((from)|(source)|(revised)'+\
-                        '|(posted)|(recipe))\:?\s',re.I)
+                        '|(posted)|(recipe)|(busted)|(file))\:?\s',re.I)
 def valid_instruction(text):
     if not pnum.match(text) is None:
         print 'rejected '+text

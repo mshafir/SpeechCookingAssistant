@@ -153,5 +153,5 @@ def fill_recipe(db,recipe):
 #create_db()
 #fill_categories()
 cats = get_categories()
-recipes = get_recipes_for_category(cats[22][0])
+recipes = get_recipes_for_category(cats[48][0])
 db = sqlite3.connect('recipe.db')

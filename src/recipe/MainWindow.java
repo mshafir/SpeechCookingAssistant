@@ -13,6 +13,11 @@ package recipe;
 import java.awt.Color;
 import java.awt.Component;
 import java.awt.Dimension;
+import java.awt.Font;
+import java.awt.Graphics2D;
+import java.awt.Image;
+import java.awt.SplashScreen;
+import java.awt.Toolkit;
 import java.util.ArrayList;
 
 import javax.swing.DefaultListModel;
@@ -44,19 +49,38 @@ public class MainWindow extends javax.swing.JFrame {
     
     /** Creates new form MainWindow */
     public MainWindow() {
+        this.setIconImage(Toolkit.getDefaultToolkit().getImage("images/icon.png"));
+        load();
         initComponents();
-        recipeMode = false;
         setupLayout();
-        RecipeDB.initialize();
-        RATextToSpeech.initialize();
-        RASpeechRecognizer.initialize();
+        recipeMode = false;
         loadCategories();
     }
     
+    public final void load() {
+        //Image background = new ImageIcon("images/splash.png").getImage();
+        //g.drawImage(background, 0,0,size.width,size.height,null);
+        //SplashScreen splash = SplashScreen.getSplashScreen();
+        //Graphics2D g = splash.createGraphics();
+        //Dimension size = splash.getSize();
+        
+        //Font f = Font.getFont("Comic Sans MS");      
+        //g.setFont(f.deriveFont(24));
+        //g.drawString("Recipe Assistant", 100,size.width-100);
+        //g.setFont(f.deriveFont(12));
+        //g.drawString("Loading the recipe database...",140,size.width-100);
+        //splash.update();
+        RecipeDB.initialize();
+        //g.drawString("Loading the speech recognizer...",160,size.width-100);
+        //splash.update();
+        RASpeechRecognizer.initialize();
+        //g.drawString("Loading text to speech...",180,size.width-100);
+        //splash.update();
+        RATextToSpeech.initialize();
+        //splash.close();
+    }
+    
     public final void setupLayout() {
-        
-        this.setIconImage(new ImageIcon("images/icon.ico").getImage());
-        
         speaker0 = new ImagePanel("images/speaker0.png",
                 new Dimension(150,150));
         this.add(speaker0);
@@ -97,8 +121,6 @@ public class MainWindow extends javax.swing.JFrame {
         lblQ.setForeground(Color.WHITE);
         lblR.setBounds(200,560,500,20);
         lblR.setForeground(Color.WHITE);
-        
-        
     }
     
     public final void loadCategories() {
@@ -243,7 +265,7 @@ public class MainWindow extends javax.swing.JFrame {
         setMinimumSize(new java.awt.Dimension(640, 480));
         setResizable(false);
 
-        jList1.setFont(new java.awt.Font("Comic Sans MS", 0, 11)); // NOI18N
+        jList1.setFont(new java.awt.Font("Comic Sans MS", 0, 11));
         jList1.setOpaque(false);
         jList1.addListSelectionListener(new javax.swing.event.ListSelectionListener() {
             public void valueChanged(javax.swing.event.ListSelectionEvent evt) {
@@ -251,7 +273,7 @@ public class MainWindow extends javax.swing.JFrame {
             }
         });
 
-        jList2.setFont(new java.awt.Font("Comic Sans MS", 0, 11)); // NOI18N
+        jList2.setFont(new java.awt.Font("Comic Sans MS", 0, 11));
         jList2.setOpaque(false);
         jList2.addMouseListener(new java.awt.event.MouseAdapter() {
             public void mouseClicked(java.awt.event.MouseEvent evt) {
@@ -259,10 +281,10 @@ public class MainWindow extends javax.swing.JFrame {
             }
         });
 
-        lblTitle.setFont(new java.awt.Font("Comic Sans MS", 0, 18)); // NOI18N
+        lblTitle.setFont(new java.awt.Font("Comic Sans MS", 0, 18));
         lblTitle.setText("Recipe Categories");
 
-        lblYield.setFont(new java.awt.Font("Comic Sans MS", 0, 11)); // NOI18N
+        lblYield.setFont(new java.awt.Font("Comic Sans MS", 0, 11));
         lblYield.setHorizontalAlignment(javax.swing.SwingConstants.RIGHT);
 
         btnBack.setText("Go Back");
@@ -271,6 +293,8 @@ public class MainWindow extends javax.swing.JFrame {
                 btnBackActionPerformed(evt);
             }
         });
+
+        lblR.setFont(new java.awt.Font("Tahoma", 2, 11)); // NOI18N
 
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(getContentPane());
         getContentPane().setLayout(layout);
@@ -367,8 +391,7 @@ public class MainWindow extends javax.swing.JFrame {
                 if ("Metal".equals(info.getName())) {
                     javax.swing.UIManager.setLookAndFeel(info.getClassName());
                     break;
-                }
-                
+                } 
             }
         } catch (ClassNotFoundException ex) {
             java.util.logging.Logger.getLogger(MainWindow.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
@@ -380,10 +403,9 @@ public class MainWindow extends javax.swing.JFrame {
             java.util.logging.Logger.getLogger(MainWindow.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
         }
         //</editor-fold>
-
+        
         /* Create and display the form */
         java.awt.EventQueue.invokeLater(new Runnable() {
-
             @Override
             public void run() {
                 new MainWindow().setVisible(true);
