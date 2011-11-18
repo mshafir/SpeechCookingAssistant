@@ -49,8 +49,24 @@ def create_db():
             Amount           REAL,
             Unit             TEXT
         )""")
+    db.execute("""
+        CREATE TABLE Units
+        (
+            UnitShortName   TEXT,
+            UnitSingular    TEXT,
+            UnitPlural      TEXT
+        )""")
     db.commit()
     db.close()
+
+def populate_units(db):
+    units = [['c','cup','cups'],
+             ['ts','teaspoon','teaspoons'],
+             ['tb','tablespoon','tablespoons']]
+    for u in units:
+        db.execute("""INSERT INTO Units (UnitShortName,UnitSingular,UnitPlural)
+                    VALUES (?,?,?)""",u)
+    db.commit()
 
 def test_insert():
     db = sqlite3.connect('recipe.db')
@@ -152,6 +168,6 @@ def fill_recipe(db,recipe):
 
 #create_db()
 #fill_categories()
-cats = get_categories()
-recipes = get_recipes_for_category(cats[48][0])
-db = sqlite3.connect('recipe.db')
+#cats = get_categories()
+#recipes = get_recipes_for_category(cats[48][0])
+#db = sqlite3.connect('recipe.db')

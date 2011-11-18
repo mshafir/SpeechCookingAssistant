@@ -4,6 +4,8 @@
  */
 package recipe.speech;
 
+import recipe.interfaces.ISpeechEventListener;
+
 import com.sun.speech.freetts.Voice;
 import com.sun.speech.freetts.VoiceManager;
 //import com.sun.speech.freetts.audio.JavaClipAudioPlayer;
@@ -14,7 +16,7 @@ import com.sun.speech.freetts.VoiceManager;
 public class RATextToSpeech {
     static VoiceManager voiceManager;
     static Voice voice;
-    static SpeechEventListener listener;
+    static ISpeechEventListener listener;
     
     public static void initialize() {
         voiceManager = VoiceManager.getInstance();

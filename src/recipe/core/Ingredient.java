@@ -4,7 +4,11 @@
  */
 package recipe.core;
 
+import java.sql.SQLException;
 import java.util.ArrayList;
+
+import recipe.db.RecipeDB;
+import recipe.speech.SpeechHelper;
 
 /**
  *
@@ -29,6 +33,22 @@ public class Ingredient {
         this.Amount = amount;
         this.Unit = unit;
         this.Detail = detail;
+    }
+    
+    public String getSpeechString() throws SQLException {
+        String unit = unitMapping(Unit,Amount>1);
+        String of = unit.equals("") ? "" : " of ";
+        return SpeechHelper.convertFloat(Amount)+" "+
+                    unit+of+
+                    IngredientNames.get(0); //aka 3 cups of butter
+    }
+    
+    private String unitMapping(String unit,boolean plural) throws SQLException {
+        if (plural) {
+            return RecipeDB.getInstance().getPluralUnit(unit);
+        } else {
+            return RecipeDB.getInstance().getSingularUnit(unit);
+        }
     }
     
     @Override

@@ -17,9 +17,10 @@ import javax.speech.recognition.GrammarException;
 import javax.speech.recognition.Rule;
 import javax.speech.recognition.RuleGrammar;
 
+import recipe.speech.result_handlers.AbstractResultHandler;
+
 import com.sun.speech.engine.recognition.BaseRecognizer;
 import com.sun.speech.engine.recognition.BaseRuleGrammar;
-import edu.cmu.sphinx.decoder.ResultListener;
 import edu.cmu.sphinx.tools.tags.ActionTagsParser;
 
 /**
@@ -33,7 +34,7 @@ public class RASpeechRecognizer {
     private Microphone microphone;
     private JSGFGrammar jsgfGrammar;
     private boolean started;
-    private SpeechResultHandler curHandler;
+    private AbstractResultHandler curHandler;
     
     //Singleton Code
     private static RASpeechRecognizer instance;
@@ -55,7 +56,7 @@ public class RASpeechRecognizer {
     public RASpeechRecognizer() 
             throws EngineException, GrammarException, IOException, 
             JSGFGrammarParseException, JSGFGrammarException {
-        cm = new ConfigurationManager("jsgf.config.xml");
+        cm = new ConfigurationManager("speech.config.xml");
         recognizer = (Recognizer) cm.lookup("recognizer");
         jsgfGrammar = (JSGFGrammar) cm.lookup("jsgfGrammar");
         microphone = (Microphone) cm.lookup("microphone");
@@ -84,7 +85,7 @@ public class RASpeechRecognizer {
     }
     
     public void loadGrammar() throws IOException, JSGFGrammarParseException, JSGFGrammarException {
-        jsgfGrammar.loadJSGF("hello");
+        jsgfGrammar.loadJSGF("speech");
     }
     
     public void addRule(String ruleName, String jsgf) throws GrammarException, 
@@ -95,8 +96,8 @@ public class RASpeechRecognizer {
         ruleGrammar.setEnabled(ruleName, true);
         jsgfGrammar.commitChanges();
     }
-     
-    public void start(SpeechResultHandler rh) throws GrammarException {
+    
+    public void start(AbstractResultHandler rh) throws GrammarException {
         if (!started) {
             microphone.startRecording();
             curHandler = rh;

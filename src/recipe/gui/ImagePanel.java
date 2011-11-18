@@ -2,7 +2,7 @@
  * To change this template, choose Tools | Templates
  * and open the template in the editor.
  */
-package recipe;
+package recipe.gui;
 
 import java.awt.Dimension;
 import java.awt.Graphics;

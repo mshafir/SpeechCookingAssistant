@@ -92,4 +92,24 @@ public class RecipeDB extends SqliteDB {
         rs.close();
         return ret;
     }
+    
+    public String getSingularUnit(String unit) throws SQLException {
+        ResultSet rs = super.executeQuery("SELECT UnitSingular FROM Units WHERE"
+                + " UnitShortName='"+unit+"'");
+        String text = "";
+        if (rs.next())
+        	text = rs.getString("UnitSingular");
+        rs.close();
+        return text;
+    }
+    
+     public String getPluralUnit(String unit) throws SQLException {
+        ResultSet rs = super.executeQuery("SELECT UnitPlural FROM Units WHERE"
+                + " UnitShortName='"+unit+"'");
+        String text = "";
+        if (rs.next())
+        	text = rs.getString("UnitPlural");
+        rs.close();
+        return text;
+    }
 }
