@@ -156,7 +156,7 @@ public class MainWindow extends javax.swing.JFrame {
                 btnBackActionPerformed(evt);
             }
         });
-        btnBack.setBounds(620,60,150,20);
+        btnBack.setBounds(600,60,150,20);
         btnBack.setVisible(false);
         this.add(btnBack);
         

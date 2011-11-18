@@ -1,0 +1,51 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<project default="create_run_jar" name="Create Runnable Jar for Project SpeechCookingAssistant with libraries in sub-folder">
+    <!--this file was created by Eclipse Runnable JAR Export Wizard-->
+    <!--ANT 1.7 is required                                        -->
+    <target name="create_run_jar">
+    	<delete dir="dist"/>
+    	<mkdir dir="dist"/>
+        <jar destfile="dist/SpeechCookingAssistant.jar">
+            <manifest>
+                <attribute name="Main-Class" value="recipe.Program"/>
+                <attribute name="Class-Path" value=". lib/freetts.jar lib/en_us.jar lib/cmutimelex.jar lib/cmu_time_awb.jar lib/cmulex.jar lib/cmu_us_kal.jar lib/cmudict04.jar lib/js.jar lib/jsapi.jar lib/jsapi-1.0-base.jar lib/sphinx4.jar lib/sqlite-jdbc-3.7.2.jar lib/tags.jar lib/TIDIGITS_8gau_13dCep_16k_40mel_130Hz_6800Hz.jar lib/WSJ_8gau_13dCep_16k_40mel_130Hz_6800Hz.jar lib/WSJ_8gau_13dCep_8kHz_31mel_200Hz_3500Hz.jar"/>
+            </manifest>
+            <fileset dir="build/classes"/>
+        </jar>
+    	<!-- libs -->
+        <mkdir dir="dist/lib"/>
+        <copy file="lib/freetts.jar" todir="dist/lib"/>
+        <copy file="lib/en_us.jar" todir="dist/lib"/>
+        <copy file="lib/cmutimelex.jar" todir="dist/lib"/>
+        <copy file="lib/cmu_time_awb.jar" todir="dist/lib"/>
+        <copy file="lib/cmulex.jar" todir="dist/lib"/>
+        <copy file="lib/cmu_us_kal.jar" todir="dist/lib"/>
+        <copy file="lib/cmudict04.jar" todir="dist/lib"/>
+        <copy file="lib/js.jar" todir="dist/lib"/>
+        <copy file="lib/jsapi.jar" todir="dist/lib"/>
+        <copy file="lib/jsapi-1.0-base.jar" todir="dist/lib"/>
+        <copy file="lib/sphinx4.jar" todir="dist/lib"/>
+        <copy file="lib/sqlite-jdbc-3.7.2.jar" todir="dist/lib"/>
+        <copy file="lib/tags.jar" todir="dist/lib"/>
+        <copy file="lib/TIDIGITS_8gau_13dCep_16k_40mel_130Hz_6800Hz.jar" todir="dist/lib"/>
+        <copy file="lib/WSJ_8gau_13dCep_16k_40mel_130Hz_6800Hz.jar" todir="dist/lib"/>
+        <copy file="lib/WSJ_8gau_13dCep_8kHz_31mel_200Hz_3500Hz.jar" todir="dist/lib"/>
+    	<!-- images -->
+    	<mkdir dir="dist"/>	
+    	<copy file="images/background.png" todir="dist/images"/>
+    	<copy file="images/bar.png" todir="dist/images"/>
+    	<copy file="images/icon.png" todir="dist/images"/>
+    	<copy file="images/speaker0.png" todir="dist/images"/>
+    	<copy file="images/speaker1.png" todir="dist/images"/>
+    	<copy file="images/speaker2.png" todir="dist/images"/>
+    	<copy file="images/splash.png" todir="dist/images"/>
+    	<!-- db -->
+    	<copy file="recipe.db" todir="dist"/>
+    	<!-- speech configuration and grammar -->
+    	<copy file="speech.config.xml" todir="dist"/>
+    	<copy file="speech.gram" todir="dist"/>
+    	
+    	<!--<mkdir dir="bin"/>
+    	<zip basedir="dist" destfile="bin/SpeechAssistant.zip" />-->
+    </target>
+</project>

@@ -35,7 +35,7 @@ public class RecipeDB extends SqliteDB {
     
     
     public RecipeDB() throws ClassNotFoundException, SQLException {
-        super("scripts/recipe.db");
+        super("recipe.db");
     }
     
     public ArrayList<Category> getCategories() throws SQLException {

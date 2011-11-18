@@ -49,7 +49,7 @@ public class SpeechHelper {
 		case 3:
 			return "third";
 		case 4:
-			return "fourth";
+			return "quarter";
 		case 8:
 			return "eighth";
 		default:
