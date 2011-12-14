@@ -1,7 +1,8 @@
 Sous-Chef 1.0
    Michael Shafir
 
-Sous-Chef is an interactive speech application to help you prepare your next meal. To run, simply double-click the SousChef.jar file or at the terminal type "java -jar SousChef.jar"
+Sous-Chef is an interactive speech application to help you prepare your next meal. 
+To run, simply double-click the SousChef.jar file in the dist directory or at the terminal type "java -jar SousChef.jar"
 
 Upon loading, you will see the recipe selection screen. On the left is the category and on the right are recipes in that category. Select the category you wish and double-click on the recipe you want to prepare.
 
