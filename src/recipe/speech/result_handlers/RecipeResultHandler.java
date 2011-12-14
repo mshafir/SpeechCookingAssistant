@@ -60,5 +60,15 @@ public class RecipeResultHandler extends AbstractResultHandler {
         return false;
     }
     
+    public String getWelcome() {
+    	return "Hello. I'm here to help you prepare "+this.recipe.Title+
+    		". Start all commands with Sous-chef. For more help just say Sous-chef " +
+    		"more help.";
+    }
+    
+    public String getHelp() {
+    	return "You can ask me what happens next, what happens before that, or how " +
+    			"much of any ingredient you need.";
+    }
 
 }

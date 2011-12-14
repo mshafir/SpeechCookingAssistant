@@ -20,7 +20,10 @@ import javax.swing.SwingUtilities;
 import recipe.interfaces.ISpeechCommandHandler;
 import recipe.interfaces.ISpeechEventListener;
 import recipe.speech.RASpeechRecognizer;
+import recipe.speech.RATextToSpeech;
 import recipe.speech.RecognizerState;
+import recipe.speech.commands.HelpCommand;
+import recipe.speech.commands.TTSCommand;
 
 /**
  * This is the abstract class for handling speech results.
@@ -30,6 +33,7 @@ public abstract class AbstractResultHandler extends Thread  {
     private HashMap<String,ISpeechCommandHandler> commands;
     private boolean bRunning = true;
     private LinkedList<ISpeechEventListener> listeners;
+    private Thread welcomeThread;
     
     public AbstractResultHandler() {
         commands = new HashMap<String, ISpeechCommandHandler>();
@@ -54,8 +58,10 @@ public abstract class AbstractResultHandler extends Thread  {
     public void go() throws GrammarException, JSGFGrammarParseException, 
             IOException, JSGFGrammarException {
         RASpeechRecognizer.getInstance().loadGrammar();
-        if (loadCommands())
+        if (load()) {
             RASpeechRecognizer.getInstance().start(this);
+            welcome();
+        }
     }
     
     /**
@@ -102,7 +108,47 @@ public abstract class AbstractResultHandler extends Thread  {
         bRunning = false;
     }
     
-    public abstract boolean loadCommands();
+    protected abstract boolean loadCommands();
+    
+    public boolean load() {
+    	registerCommand("help", new HelpCommand());
+    	try {
+			addGrammarRule("(what can I say) | (sue chef help me) | " +
+					"(sue chef more help)","help","");
+		} catch (Exception e) {
+			return false;
+		}
+    	return loadCommands();
+    }
+    
+    protected abstract String getHelp();
+    
+    /**
+     * Speak the help message
+     */
+    public void help() {
+    	String h = getHelp();
+    	executeListeners(RecognizerState.Processing, "What can I say");
+        new Thread(new SpeechThread(h)).start();
+    }
+    
+    protected abstract String getWelcome();
+     
+    /**
+     * Speak the welcome message
+     */
+    public void welcome() {
+    	String h = getWelcome();
+        welcomeThread = new Thread(new SpeechThread(h));
+        welcomeThread.start();
+    }
+    
+    private class SpeechThread implements Runnable {
+    	public String text;
+    	public SpeechThread(String tx) {text = tx;}
+    	public void run(){RATextToSpeech.speak(text);}
+    }
+
     
     /**
      * Notifies listeners of a state change in the recognizer.
@@ -131,7 +177,14 @@ public abstract class AbstractResultHandler extends Thread  {
     }
     
     @Override
-    public synchronized void run() {
+    public void run() {
+    	if (welcomeThread != null && welcomeThread.isAlive()) {
+    		try {
+				welcomeThread.join();
+			} catch (InterruptedException e) {
+				System.err.println(e.getMessage());
+			}
+    	}
         executeListeners(RecognizerState.Ready,"");
         while (bRunning) {
             Result result = RASpeechRecognizer.getInstance().getRecognizer().recognize();
@@ -139,15 +192,20 @@ public abstract class AbstractResultHandler extends Thread  {
                 String bestResult = result.getBestFinalResultNoFiller();
                 if (!bestResult.equals("")) {
                     executeListeners(RecognizerState.Processing,bestResult);
-                    RuleGrammar ruleGrammar = RASpeechRecognizer.getInstance().getRuleGrammar();
                     try {
+                    	RuleGrammar ruleGrammar = RASpeechRecognizer.getInstance().getRuleGrammar();
                         RuleParse ruleParse = ruleGrammar.parse(bestResult, null);
                         if (ruleParse != null) {
                             RASpeechRecognizer.getTagsParser().parseTags(ruleParse);
                             String command = (String) RASpeechRecognizer.getTagsParser().get("command");
                             String arg = (String) RASpeechRecognizer.getTagsParser().get("arg");
                             System.out.println("\n  " + command +' ' + arg + '\n');
-                            commands.get(command).doCommand(arg,this);
+                            if (commands.containsKey(command)) {
+                            	System.out.println(command + " arg:"+arg);
+                            	commands.get(command).doCommand(arg,this);
+                            } else {
+                            	System.err.println(command + " command was not registered");
+                            }
                             RASpeechRecognizer.getInstance().clearMic();
                         }
                     } catch (GrammarException ex) {

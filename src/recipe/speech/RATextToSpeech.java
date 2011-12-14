@@ -28,9 +28,11 @@ public class RATextToSpeech {
     }
     
     public static void speak(String text) {
+    	RASpeechRecognizer.getInstance().setSpeaking(text);
         if (voice == null) {
             initialize();
         }
         voice.speak(text);
+        RASpeechRecognizer.getInstance().doneSpeaking();
     }
 }

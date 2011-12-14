@@ -38,10 +38,12 @@ public class Ingredient {
     public String getSpeechString() throws SQLException {
         String unit = unitMapping(Unit,Amount>1);
         String of = unit.equals("") ? "" : " of ";
-        return SpeechHelper.convertFloat(Amount)+" "+
+        return SpeechHelper.convertFloat(Amount,true)+" "+
                     unit+of+
                     IngredientNames.get(0); //aka 3 cups of butter
     }
+    
+
     
     private String unitMapping(String unit,boolean plural) throws SQLException {
         if (plural) {
@@ -53,7 +55,7 @@ public class Ingredient {
     
     @Override
     public String toString() {
-        return Float.toString(Amount)+ " " + Unit + 
+        return SpeechHelper.convertFloat(Amount,false)+ " " + Unit + 
                 " " + IngredientNames.get(0) + " " + Detail;
     }
 }

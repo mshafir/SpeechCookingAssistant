@@ -13,10 +13,10 @@ import recipe.speech.result_handlers.AbstractResultHandler;
  *
  * @author Michael
  */
-public class TTSCommand implements ISpeechCommandHandler {
+public class HelpCommand implements ISpeechCommandHandler {
     
     @Override
     public void doCommand(String arg,AbstractResultHandler parent) {
-        RATextToSpeech.speak(arg);
+        parent.help();
     }
 }

@@ -1,0 +1,20 @@
+Sous-Chef 1.0
+   Michael Shafir
+
+Sous-Chef is an interactive speech application to help you prepare your next meal. To run, simply double-click the SousChef.jar file or at the terminal type "java -jar SousChef.jar"
+
+Upon loading, you will see the recipe selection screen. On the left is the category and on the right are recipes in that category. Select the category you wish and double-click on the recipe you want to prepare.
+
+The cooking assistant will appear and tell you of some basic options. The specific commands currently allowed are:
+
+sous-chef, how much/many <ingredient>
+sous-chef, what happens (first/next/at the beginning/after that/before that)
+sous-chef, help me
+
+This will be extended in future releases.
+
+Functionality:
+    Real recipes from http://recipes.stevex.net/
+	Continuous recognition, with the grammar dynamically adapting to the current recipe.
+	Answers ingredient questions and navigates the instructions.
+	

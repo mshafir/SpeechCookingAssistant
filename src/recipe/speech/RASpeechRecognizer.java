@@ -113,7 +113,7 @@ public class RASpeechRecognizer {
             curHandler.stopRecognition();
             try {
                 curHandler.join();
-                recognizer.resetMonitors();
+                //recognizer.resetMonitors();
             } catch (Exception ex) {
                 System.err.println("Could not properly close recognizer.");
             }
@@ -121,9 +121,21 @@ public class RASpeechRecognizer {
         }
     }
     
+    public void help() {
+    	curHandler.help();
+    }
+    
+    public void setSpeaking(String text) {
+    	curHandler.executeListeners(RecognizerState.Speaking, text);
+    }
+    
+    public void doneSpeaking() {
+    	curHandler.executeListeners(RecognizerState.Ready, "");
+    }
+    
     static ActionTagsParser parser;
     
-    static public ActionTagsParser getTagsParser() {
+    static synchronized public ActionTagsParser getTagsParser() {
         if (parser == null) {
             parser = new ActionTagsParser();
         }

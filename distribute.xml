@@ -5,7 +5,7 @@
     <target name="create_run_jar">
     	<delete dir="dist"/>
     	<mkdir dir="dist"/>
-        <jar destfile="dist/SpeechCookingAssistant.jar">
+        <jar destfile="dist/SousChef.jar">
             <manifest>
                 <attribute name="Main-Class" value="recipe.Program"/>
                 <attribute name="Class-Path" value=". lib/freetts.jar lib/en_us.jar lib/cmutimelex.jar lib/cmu_time_awb.jar lib/cmulex.jar lib/cmu_us_kal.jar lib/cmudict04.jar lib/js.jar lib/jsapi.jar lib/jsapi-1.0-base.jar lib/sphinx4.jar lib/sqlite-jdbc-3.7.2.jar lib/tags.jar lib/TIDIGITS_8gau_13dCep_16k_40mel_130Hz_6800Hz.jar lib/WSJ_8gau_13dCep_16k_40mel_130Hz_6800Hz.jar lib/WSJ_8gau_13dCep_8kHz_31mel_200Hz_3500Hz.jar"/>
@@ -39,12 +39,13 @@
     	<copy file="images/speaker1.png" todir="dist/images"/>
     	<copy file="images/speaker2.png" todir="dist/images"/>
     	<copy file="images/splash.png" todir="dist/images"/>
+    	<copy file="images/question.png" todir="dist/images"/>
     	<!-- db -->
     	<copy file="recipe.db" todir="dist"/>
     	<!-- speech configuration and grammar -->
     	<copy file="speech.config.xml" todir="dist"/>
     	<copy file="speech.gram" todir="dist"/>
-    	
+    	<zip basedir="dist" destfile="dist/SousChef.zip"/>
     	<!--<mkdir dir="bin"/>
     	<zip basedir="dist" destfile="bin/SpeechAssistant.zip" />-->
     </target>

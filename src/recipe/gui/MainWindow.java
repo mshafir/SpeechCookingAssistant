@@ -10,6 +10,7 @@
  */
 package recipe.gui;
 
+import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.Toolkit;
 import java.util.ArrayList;
@@ -62,8 +63,6 @@ public class MainWindow extends javax.swing.JFrame {
             loadRecipeUI(recipe);
             loadRecipeSpeech(recipe);
             recipeMode = true;
-            //RecipeWindow rWnd = new RecipeWindow(recipe);
-            //rWnd.setVisible(true);
         } catch (Exception ex) {
             System.err.println(ex.getMessage());
         }
@@ -112,7 +111,7 @@ public class MainWindow extends javax.swing.JFrame {
         setTitle("Sous-Chef");
         setBackground(new java.awt.Color(102, 102, 102));
         setBounds(new java.awt.Rectangle(0, 0, 800, 600));
-        setFocusableWindowState(false);
+        //setFocusableWindowState(false);
         setForeground(java.awt.Color.gray);
         setMinimumSize(new java.awt.Dimension(800, 600));
         setResizable(false);
@@ -126,8 +125,6 @@ public class MainWindow extends javax.swing.JFrame {
             }
         });
         jList1.setCellRenderer(new TransparentCellRenderer());      
-        jList1.setBounds(50,100,340,380);
-        this.add(jList1);
 
         jList2.setFont(new java.awt.Font("Comic Sans MS", 0, 11));
         jList2.setOpaque(false);
@@ -137,9 +134,25 @@ public class MainWindow extends javax.swing.JFrame {
             }
         });
         jList2.setCellRenderer(new TransparentCellRenderer());
-        jList2.setBounds(410,100,340,380);
-        this.add(jList2);
 
+        javax.swing.JScrollPane sp1 = new javax.swing.JScrollPane(jList1);
+        sp1.setBounds(50,100,340,360);
+        sp1.setBorder(null);
+        sp1.setOpaque(false);
+        sp1.setHorizontalScrollBar(null);
+        sp1.getViewport().setBackground(new Color(0,0,0,0));
+        sp1.getViewport().setOpaque(false);    
+        this.add(sp1);
+        
+        javax.swing.JScrollPane sp2 = new javax.swing.JScrollPane(jList2);
+        sp2.setBounds(410,100,340,360);
+        sp2.setBorder(null);
+        sp2.setOpaque(false);
+        sp2.setHorizontalScrollBar(null);
+        sp2.getViewport().setBackground(new Color(0,0,0,0));
+        sp2.getViewport().setOpaque(false);    
+        this.add(sp2);
+        
         lblTitle.setFont(new java.awt.Font("Comic Sans MS", 0, 18));
         lblTitle.setText("Recipe Categories");
         lblTitle.setBounds(50,40,340,40);

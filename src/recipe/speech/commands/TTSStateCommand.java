@@ -36,7 +36,6 @@ public class TTSStateCommand implements ISpeechCommandHandler {
         else if (arg.equals("prev")) {
             r.setStep(r.getStep()-1);
         }
-        parent.executeListeners(RecognizerState.Speaking, r.currentStep());
         RATextToSpeech.speak(r.currentStep());
     }
 }
