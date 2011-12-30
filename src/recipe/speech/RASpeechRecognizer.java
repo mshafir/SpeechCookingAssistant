@@ -97,10 +97,13 @@ public class RASpeechRecognizer {
         jsgfGrammar.commitChanges();
     }
     
-    public void start(AbstractResultHandler rh) throws GrammarException {
+    public void setHandler(AbstractResultHandler rh) {
+    	curHandler = rh;
+    }
+    
+    public void start() throws GrammarException {
         if (!started) {
             microphone.startRecording();
-            curHandler = rh;
             curHandler.start();
             started = true;
         }

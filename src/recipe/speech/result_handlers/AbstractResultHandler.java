@@ -59,8 +59,9 @@ public abstract class AbstractResultHandler extends Thread  {
             IOException, JSGFGrammarException {
         RASpeechRecognizer.getInstance().loadGrammar();
         if (load()) {
-            RASpeechRecognizer.getInstance().start(this);
-            welcome();
+        	RASpeechRecognizer.getInstance().setHandler(this);
+        	welcome();
+            RASpeechRecognizer.getInstance().start();
         }
     }
     
@@ -176,15 +177,25 @@ public abstract class AbstractResultHandler extends Thread  {
         }
     }
     
-    @Override
-    public void run() {
-    	if (welcomeThread != null && welcomeThread.isAlive()) {
+    private synchronized void waitTillReady() {
+    	/*if (welcomeThread != null && welcomeThread.isAlive()) {
     		try {
 				welcomeThread.join();
 			} catch (InterruptedException e) {
 				System.err.println(e.getMessage());
 			}
+    	}*/
+    	while (RATextToSpeech.isSpeaking()) {
+    		try {
+				Thread.sleep(100);
+			} catch (InterruptedException e) {
+			}
     	}
+    }
+    
+    @Override
+    public void run() {
+    	waitTillReady();
         executeListeners(RecognizerState.Ready,"");
         while (bRunning) {
             Result result = RASpeechRecognizer.getInstance().getRecognizer().recognize();
@@ -196,9 +207,11 @@ public abstract class AbstractResultHandler extends Thread  {
                     	RuleGrammar ruleGrammar = RASpeechRecognizer.getInstance().getRuleGrammar();
                         RuleParse ruleParse = ruleGrammar.parse(bestResult, null);
                         if (ruleParse != null) {
+                        	org.mozilla.javascript.Context.enter(); // so no threading issue arrises on getTagsParser
                             RASpeechRecognizer.getTagsParser().parseTags(ruleParse);
                             String command = (String) RASpeechRecognizer.getTagsParser().get("command");
                             String arg = (String) RASpeechRecognizer.getTagsParser().get("arg");
+                            org.mozilla.javascript.Context.exit(); 
                             System.out.println("\n  " + command +' ' + arg + '\n');
                             if (commands.containsKey(command)) {
                             	System.out.println(command + " arg:"+arg);

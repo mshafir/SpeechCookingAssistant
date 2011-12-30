@@ -61,8 +61,8 @@ public class MainWindow extends javax.swing.JFrame {
             recipe.Ingredients = RecipeDB.getInstance().getIngredients(recipe.ID);
             recipe.Steps = RecipeDB.getInstance().getSteps(recipe.ID);
             loadRecipeUI(recipe);
-            loadRecipeSpeech(recipe);
             recipeMode = true;
+            loadRecipeSpeech(recipe);
         } catch (Exception ex) {
             System.err.println(ex.getMessage());
         }
@@ -148,7 +148,7 @@ public class MainWindow extends javax.swing.JFrame {
         sp2.setBounds(410,100,340,360);
         sp2.setBorder(null);
         sp2.setOpaque(false);
-        sp2.setHorizontalScrollBar(null);
+        //sp2.setHorizontalScrollBar(null);
         sp2.getViewport().setBackground(new Color(0,0,0,0));
         sp2.getViewport().setOpaque(false);    
         this.add(sp2);

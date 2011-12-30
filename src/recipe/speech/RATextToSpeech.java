@@ -17,6 +17,11 @@ public class RATextToSpeech {
     static VoiceManager voiceManager;
     static Voice voice;
     static ISpeechEventListener listener;
+    static boolean speaking;
+    
+    public static boolean isSpeaking() {
+    	return speaking;
+    }
     
     public static void initialize() {
         voiceManager = VoiceManager.getInstance();
@@ -28,11 +33,13 @@ public class RATextToSpeech {
     }
     
     public static void speak(String text) {
+    	speaking = true;
     	RASpeechRecognizer.getInstance().setSpeaking(text);
         if (voice == null) {
             initialize();
         }
         voice.speak(text);
         RASpeechRecognizer.getInstance().doneSpeaking();
+        speaking = false;
     }
 }

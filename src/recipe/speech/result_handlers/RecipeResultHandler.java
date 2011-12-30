@@ -29,6 +29,9 @@ public class RecipeResultHandler extends AbstractResultHandler {
             super.registerCommand("speak", new TTSCommand()); //standard text speaker
             super.registerCommand("stateSetSpeak", new TTSStateCommand(recipe)); //recipe state-aware text speaker
             
+            // ;)
+            super.addGrammarRule("sue chef unleash hell", "speak", 
+            		"Gah, you killed my father prepare to die.");
             //load the ingredient answering rules
             int cur=0;
             for (Ingredient i : recipe.Ingredients) {
@@ -62,12 +65,12 @@ public class RecipeResultHandler extends AbstractResultHandler {
     
     public String getWelcome() {
     	return "Hello. I'm here to help you prepare "+this.recipe.Title+
-    		". Start all commands with Sous-chef. For more help just say Sous-chef " +
-    		"more help.";
+    		". For more help just say Sous-chef " +
+    		"more help."; //Start all commands with Sous-chef. 
     }
     
     public String getHelp() {
-    	return "You can ask me what happens next, what happens before that, or how " +
+    	return "Start all commands with Sous-chef. You can ask me what happens next, what happens before that, or how " +
     			"much of any ingredient you need.";
     }
 
